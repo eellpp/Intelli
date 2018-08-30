@@ -4,7 +4,7 @@ title: About
 permalink: /about/
 ---
 
-Building large cloud based systems requires good engineering. Especially if this involves the BigData Processing and Real Time Analysis. This is also a fast moving technology space. An Architect in this domain should see above and beyond the business requirements anticipating future changes. He should be well versed with the current solution design and keep track of the latest trends in the technology and tools used in this space.
+Building large cloud based systems requires good engineering. Especially if this involves the BigData Processing and Real Time Analysis. This is also a fast moving technology space. An Architect in this domain should see above and beyond the business requirements anticipating future changes. He should be well versed with the current solution design and keep track of the latest trends in the technology and tools used in this space. 
 
 ### The Data Architect
 

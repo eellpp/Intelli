@@ -22,4 +22,4 @@ markdown: kramdown
 main_ignore_posts_with_tags: 'troubleshooting'
 tagline: 'BigData, Analytics and Cloud'
 
-theme: jekyll-theme-cayman
+theme: jekyll-theme-slate

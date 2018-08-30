@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Vim Commands frequently used</title>
+  <meta name="description" content="Using Spell check in vim">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2013/03/21/vim-commands-i-use.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Vim Commands frequently used</h1>
+    <p class="post-meta">
+	<time datetime="2013-03-21T00:00:00+08:00" itemprop="datePublished">Mar 21, 2013
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/vim/" >vim</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/tools/" >tools</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/devops/" >devops</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h3 id="using-spell-check-in-vim">Using Spell check in vim</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># start the spell check</span>
+:set spell
+<span class="c"># move forward to next misspelled word</span>
+<span class="o">]</span>s 
+<span class="c"># move backword to next misspelled word</span>
+<span class="o">[</span>s
+<span class="c"># suggest alternatives</span>
+<span class="nv">z</span><span class="o">=</span>
+<span class="c"># add word to dictionary</span>
+zg
+<span class="c"># mark words as incorrect</span>
+zw</code></pre></figure>
+
+<h3 id="commentinguncommenting-multiple-lines-or-vertical-column-text-selection">Commenting/Uncommenting multiple lines or vertical column text selection</h3>
+<p>To comment out blocks in vim:</p>
+
+<ul>
+  <li>hit ctrl+v (visual block mode)</li>
+  <li>use the down arrow keys to select the lines you want (it won’t highlight everything)</li>
+  <li>Shift+i (capital I)</li>
+  <li>insert the text you want, i.e. ‘% ‘</li>
+  <li>Press ESC</li>
+  <li>Give it a second to work</li>
+  <li>Put your cursor on the first # character, press CtrlV (or CtrlQ for gVim), and go down until the last commented line and press x, that will delete all the # characters vertically.</li>
+</ul>
+
+<h3 id="non-greedy-match-in-vim">Non greedy match in vim</h3>
+<p>Eg: for matching the first word in lines :/^.{-}[^ ]\s</p>
+
+<ul>
+  <li>Instead of .* use .{-}.</li>
+  <li>%s/style=”.{-}”//g</li>
+  <li>Also, see :help non-greedy</li>
+</ul>
+
+<h3 id="using-grep-in-vim">Using grep in vim</h3>
+<p>Download the plugin from here 
+http://www.vim.org/scripts/script.php?script_id=2572</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">sudo </span>ln <span class="nt">-s</span> /usr/bin/ack-grep /usr/local/bin/ack</code></pre></figure>
+
+<h3 id="using-register">Using Register</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="s2">"kyy #(also append to register using "</span>Kyy<span class="o">)</span>
+<span class="s2">"kp #(to paste it)</span></code></pre></figure>
+
+<h3 id="using-macro">Using macro</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">q&lt;letter&gt;&lt;commands&gt;q
+&lt;number&gt;@&lt;letter&gt;
+q <span class="c">#start recording to register q </span>
+<span class="c">#... your complex series of commands</span>
+ q <span class="c">#stop recording </span>
+@q <span class="c">#execute your macro </span>
+@@ <span class="c">#execute your macro again</span></code></pre></figure>
+
+<h3 id="set-screen-session-name">Set screen session name</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">CNTRL + A +:
+sessionname &lt;name&gt;</code></pre></figure>
+
+<h3 id="delete-empty-lines">Delete empty lines</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">:g/^<span class="nv">$/</span>d</code></pre></figure>
+
+<h3 id="delete-duplicate-lines">Delete duplicate lines</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">:sort u</code></pre></figure>
+
+<h3 id="bash-command-line">Bash command line</h3>
+<p>C-x C-e to open the line in vim editor</p>
+
+<h3 id="window-resizing">Window Resizing</h3>
+<p>Cntrl - w + /-</p>
+
+<h3 id="folding">Folding</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">zf <span class="c">#create fold</span>
+zf<span class="s1">'a # fold to mark
+#use zo and then zc to open and close folds
+#To move between folds quickly, use the zj and zk
+#If you want to move between the start and end of a fold, use [z and ]z
+zR #will open all of the folds in the file
+zd #to delete fold
+#on search vim opens the fold. zm will restore the folds</span></code></pre></figure>
+
+<h3 id="moving-around">Moving Around</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">k <span class="c">#(up),</span>
+h <span class="c">#(left) </span>
+l <span class="c">#(right).</span>
+j <span class="c">#(down)</span>
+<span class="c">#(Ex 5k,j,3l )</span>
+<span class="c">#Word Movement</span>
+w <span class="c">#(Forward Word Movement Ex. f,5f )</span>
+b <span class="c">#(Backword Word Movement Ex. b,2b)</span>
+e <span class="c">#(Forward Word Movement at the end of word Ex. e,3e )</span>
+ge <span class="c">#(Backword Word Movement at the end of word Ex. ge,3ge )</span>
+<span class="c">#Moving to the Start or End of a Line</span>
+<span class="nv">$ </span><span class="c">#(End Of Line Ex. $,2$)</span>
+^ <span class="c">#(Start Of Line Ex. ^,3^)</span>
+<span class="c">#Searching Along a Single Line</span>
+f&lt;Charcter&gt; <span class="c">#(Searching Charcter Forward Ex. fa, 2fv)</span>
+F&lt;Charcter&gt; <span class="c">#(Searching Charcter Backword Ex. Fg,2Ft)</span>
+t&lt;Charcter&gt; <span class="c">#(Search till Forward )</span>
+T&lt;Charcter&gt; <span class="c">#(Search till Backword)</span>
+<span class="c">#Moving to a Specific Line</span>
+&lt;Line No.&gt;G <span class="c">#(Go to Line No.)</span>
+CTRL-G <span class="c">#(Where I am in the File)</span>
+nG <span class="c">#go to line number n</span>
+G  <span class="c">#go to end of file</span>
+CTRL-O <span class="c">#Jump to previous location.</span>
+&lt;TAB&gt; <span class="c">#Jump to next location (line 10).</span>
+<span class="c">#Where are you in File</span>
+:set number
+:set nonumber</code></pre></figure>
+
+<p>###Scrolling Up and Down###</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#Fast Scrolling (Back - Front)</span>
+CTRL-B <span class="c">#(scrolls up a entire screen at a time.)</span>
+CTRL-F <span class="c">#(scrolls down one screen of text.)</span>
+
+<span class="c">#Medium Scrolling (Up - Down)</span>
+CTRL-U <span class="c">#(scrolls up half a screen of text.)</span>
+CTRL-D <span class="c">#(scrolls down half a screen of text.)</span>
+
+CTRL-Y <span class="c">#(scrolls up a line of text.)</span>
+CTRL-E <span class="c">#(scrolls down one line.)</span>
+
+z&lt;Enter&gt; <span class="c">#(screen line on the top)</span>
+88z&lt;Enter&gt; <span class="c">#positions line 88 at the top.</span>
+zt <span class="c">#(Leaves the cursor where it is.)</span>
+z- <span class="c">#(scrolls line to the end of the screen)</span>
+zb <span class="c">#(Leaves the cursor where it is)</span>
+z. <span class="c">#(Center of the screen)</span>
+zz <span class="c">#(Leaves the cursor where it is .)</span>
+:set <span class="nv">scroll</span><span class="o">=</span>10
+:set <span class="nv">scrolljump</span><span class="o">=</span>5
+:set <span class="nv">scrolloff</span><span class="o">=</span>3</code></pre></figure>
+
+<h3 id="deleting">Deleting</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">x <span class="c">#delete character under the cursor (short for "dl")</span>
+X <span class="c">#delete character before the cursor (short for "dh")</span>
+dw <span class="c">#(Delete Word Ex. dw,3dw,d3w,3d2w,d$,d^,df&gt; )</span>
+dd <span class="c">#(Delete Line Ex. dd,3dd)</span>
+D <span class="c">#(Delete up to end of line. )(short for "d$")</span>
+diw <span class="c">#delete word under the cursor (excluding white space)</span>
+daw <span class="c">#delete word under the cursor (including white space)</span>
+dG <span class="c">#delete until the end of the file</span>
+dgg <span class="c">#delete until the start of the file</span></code></pre></figure>
+
+<p>In general, d<motion> will delete from current position to ending position after <motion>. This means that:</motion></motion></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">d&lt;leftArrow&gt; <span class="c">#will delete current and left character</span>
+d3&lt;leftArrow&gt; <span class="c">#will delete 3 characters</span>
+d3&lt;rightArrow&gt; <span class="c">#will delete 3 characters to right</span>
+bdw <span class="c">#will start at beginning of word and delete the word</span>
+bd3&lt;rightArrow&gt; <span class="c">#will take to the beginning of the word and delete 3 letters to the right</span>
+ed3&lt;leftArrow&gt; <span class="c">#will take to the end of the word delete 3 letter to the left</span>
+3bdw <span class="c">#will move 3 words to the left and delete  the word</span>
+3ebdw <span class="c">#will move 3 words to the right and delete the word</span>
+3ed3&lt;leftArrow&gt; <span class="c">#will move the cursor to 3 words ahead (at the end) and then delete 3 characters on the left</span>
+d<span class="nv">$ </span><span class="c">#will delete from current position to end of line</span>
+d^ <span class="c">#will delete from current backward to first non-white-space character</span>
+d0 <span class="c">#will delete from current backward to beginning of line</span>
+dw <span class="c">#deletes current to end of current word (including trailing space)</span>
+db <span class="c">#deletes current to beginning of current word</span></code></pre></figure>
+
+<h3 id="arithemetic">Arithemetic</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">CTRL-A <span class="c">#Incrmenting Number (123, 0177, 0x1f,-98)</span>
+CTRL-X <span class="c">#Decrementing Number</span>
+:set <span class="nv">nrformats</span><span class="o">=</span><span class="s2">""</span></code></pre></figure>
+
+<h3 id="changing-text">Changing Text</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">cw <span class="c">#(Change Word Ex cw,c2w)</span>
+C <span class="c">#stands for c$ (change to end of the line)</span>
+s <span class="c">#stands for cl (change one character)</span>
+S <span class="c">#stands for cc (change a whole line)</span></code></pre></figure>
+
+<h3 id="the--command">The . Command</h3>
+<p>It repeats the last delete or change command.</p>
+
+<h3 id="joining-lines">Joining Lines</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">J i#<span class="o">(</span>Join Lines to One. Ex J,3J<span class="o">)</span>
+gJ <span class="c">#(Join Lines without Spaces)</span></code></pre></figure>
+
+<h3 id="replacing-character">Replacing Character</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">r&lt;Charcter&gt; <span class="c">#(Replace Charater Under Cursour. Ex. ru,5ra,3r&lt;Enter&gt; )</span>
+R&lt;Charcter&gt;</code></pre></figure>
+
+<h3 id="changing-case">Changing Case</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">~ <span class="c">#(Change Case of Character Ex. ~,12~,~fq)</span>
+U <span class="c">#(Make the text Uppercase)</span>
+u <span class="c">#(Make the text Lowercase)</span>
+g~motion <span class="c">#(It does not depend on tildeop)</span>
+g~~ or g~g~ <span class="c">#(Changes case of whole line)</span>
+gUmotion <span class="c">#(All uppercase)</span>
+gUU <span class="c">#(Changes to uppercase for whole line)</span>
+gUw <span class="c">#(Changes to uppercase for word)</span>
+guw <span class="c">#(Changes to lowercase for word)</span></code></pre></figure>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

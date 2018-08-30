@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Automate Infrastructure Deployment With Chef</title>
+  <meta name="description" content="Chef can model your infrastructure as source code. This makes the process of infrastructure deployment repeatable and maintainable. It has three essential co...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2015/05/15/automate-infrastructure-deployment-with-chef.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Automate Infrastructure Deployment With Chef</h1>
+    <p class="post-meta">
+	<time datetime="2015-05-15T00:00:00+08:00" itemprop="datePublished">May 15, 2015
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/chef/" >chef</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/devops/" >devops</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>Chef can model your infrastructure as source code. This makes the process of infrastructure deployment repeatable and maintainable. It has three essential components</p>
+
+<ul>
+  <li>Chef Server</li>
+  <li>WorkStation and</li>
+  <li>Nodes</li>
+</ul>
+
+<p>Workstation is the development machine. Changes are pushed from WorkStation to Chef Server which in turn manages the nodes. 
+The source code to model the infrastructure are scripts called as recipes in chef terminology. A collection of this recipe which manages the application could be a cookbook. You can also have a library pattern where a specific piece of infrastructure is modeled as a cookbook. Eg a database cookbook.</p>
+
+<p>During development, you would need to quick test these recipes. Install Vagrant on you workstation to test these recipes.
+For production deployment, you would be using the chef server which stores the cookbook and manages the nodes. You push your changes to chef server which in turn deploys those changes to individual nodes. Communication with the chef server from workstation is done with knife commands.</p>
+
+<p>To start with, create a chef server account at https://manage.chef.io/login.  Once you have registered with your organization, download the validation keys.</p>
+
+<p>Chef server supports “multiple organizations” pattern to manage multiple products in an organization where the teams have different access rights to each product infrastructure.  Thus you can keep the infrastructure of these product totally isolated by associating the cookbooks and nodes under different products.</p>
+
+<p>Create a vagrant box or download the popular available box from vagrant website. Once you have setup your vagrant box, your workflow with vagrant will involve using command like vagrant up, halt and destroy.  During the process of configuring the vagrant env you have to modify the VagrantFile to specify details like memory etc.</p>
+
+<p>The workflow with chef involves cookbook creation, local testing and eventual deployment over private or public Cloud</p>
+
+<p>Some the common practices while working with chef</p>
+
+<p>To generate the template for Chef Cookbook</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">chef generate cookbooks cookbooks/</code></pre></figure>
+
+<p>Use Berkshelf for managing the dependencies</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">berks install
+berks upload &lt;cookbook_name&gt; <span class="nt">--no-ssl-verify</span> <span class="c"># to upload the cookbook to hosted server</span></code></pre></figure>
+
+<p>Use Chef Test Kitchen for quick testing using test vm. Some of the common commands are</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">kitchen create
+kitchen converge
+kitchen destroy</code></pre></figure>
+
+<p>For n-tier application it is useful to create roles and assign recipes in each role. Thus a webserver could have a different runlist and configuration from application server and database server.  You can add the role-name.json file to the roles folder and upload the file to chef server</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#This will save the role on server</span>
+knife role create <span class="nb">test</span>
+
+<span class="c">#Get the role json file from server</span>
+knife role show web_server <span class="nt">-Fjson</span> <span class="o">&gt;</span> roles/
+
+<span class="c">#To push the changes in roles from file to chef server</span>
+knife role from file path/to/role/file</code></pre></figure>
+
+<p>Chef provides the Environment config to configure the infrastructure as per the development workflow. There could be a development, testing and production environment which could differ by roles and recipes.</p>
+
+<p>You can provision the infrastructure using the knife command</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"> knife bootstrap &lt;Ip-address&gt; <span class="nt">--ssh-port</span> &lt;port&gt;--ssh-user &lt;ssh-user&gt; <span class="nt">-r</span> <span class="s1">'role[&lt;role-name&gt;]'</span> <span class="nt">--sudo</span> <span class="nt">--identity-file</span> &lt;path to identity file&gt;--node-name &lt;node-name&gt;</code></pre></figure>
+
+<p>On the hosted chef server you can view the status of all the nodes that are active and their configuration details.</p>
+
+<p>Each of your cookbook recipe has a version and chef server saves all the previous versions.
+Another point to note is to pin the dependencies to versions to replicate the development stack on production versions.</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

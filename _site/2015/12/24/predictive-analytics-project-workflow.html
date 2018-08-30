@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Predictive Analytics Project Workflow</title>
+  <meta name="description" content="There are three main stages in a predictive analytics project">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2015/12/24/predictive-analytics-project-workflow.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Predictive Analytics Project Workflow</h1>
+    <p class="post-meta">
+	<time datetime="2015-12-24T00:00:00+08:00" itemprop="datePublished">Dec 24, 2015
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/analytics/" >analytics</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/bigdata/" >bigdata</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>There are three main stages in a predictive analytics project</p>
+
+<ol>
+  <li>Requirement gathering</li>
+  <li>Data modeling</li>
+  <li>Delivery and deployment</li>
+</ol>
+
+<p><img src="http://localhost:4000/assets/analytics_workflow.png" alt="analytics_workflow" style="width: 450px;" /></p>
+
+<h3 id="requirement-gathering">Requirement Gathering</h3>
+<p>While working out the requirements for a predictive analytics project it is important to define the objectives clearly. Care should be taken to avoid making the objectives overly broad or overly specific. For example, if we are measuring the customer churn at an online portal, we can define the task as the percentage of customers who do not access for a period of 3 months after continuous weekly activities.</p>
+
+<p>The “No Free Lunch Theorm” in Machine Learning states that no one model is optimal in absence of any knowledge about the problem. So everthing starts with understanding the problem and then selecting the model to fit the data. Infact defining the objectives is one part of the problem we are solving. Another aspect is to deep dive into the domain context to better understand the nature of dataset features.</p>
+
+<p>Once the objectives are clearly defined we can map the requirements for the dataset we need to get.  In the customer churn example, the data set for customers should not have the anonymous visitors, or logged in users who haven’t shopped yet from the website.  All the assumption in preparing the dataset should should again be confirmed with the project owner.</p>
+
+<p>Along with the dataset, we need to define the performance metrics for the models and minimum threshold of acceptable performance that is good enough. These performance goals are the project metrics that should be acceptable to the project owner so that we have clear target to achieve. The performance thresholds should be realistic, taking into consideration the complexity of the problem we are addressing. Predictive models are never perfect and there could be endless optimization loop if we don’t agree on these early on.</p>
+
+<p>The amount of data we need to collect would depend on the models and level of accuracy that we are targeting. Simpler models based on linear regression etc may need less features and data than other complex models.</p>
+
+<h3 id="data-modeling">Data Modeling</h3>
+<p>Once we have the data,  we need to process it to map to our requirement. During this stage, we do exploratory data analysis to better understand the data. This include understanding the various features and their relationships, the data quality, missing elements and whether any imputations can be done. Algorithms like KNN can help impute the missing value by making intelligent guesses on them. We visualize the features by plotting them and try to understand the relationship between among them.
+We would also need to transform the data into proper units and scales so that they could be comparable. Some of the algorithms require the data to be in numerical or categorical and we have appropriately transform the features. We also have to identify the outliers and other problematic features in the data like redundant features and features that have no variance etc.</p>
+
+<p>While exploring the data we have to choose the features which are suitable for building predictive models. The number of features define the dimensions of the model. Higher number of dimensions will make the models complex. It will increase the computation time and also would mean that we need larger data set to learn from all the possible combination of features.</p>
+
+<p>To reduce the number of features we can combine or remove some of the features. We can use methods like  PCA, which create a set of new features which are a linear combination of existing features thus reducing the number features. The first principal component of PCA can be visualized as the line in the feature space along which the data varies most. The second principal component is the next line, which is uncorrelated from the first line and along which data varies most and so on. Since PCA is based on variance of data points, we need to scale the features before applying the method.</p>
+
+<p>To build our predictive models  we choose a model based on various constraints.</p>
+
+<ul>
+  <li>The nature of the task could define whether regression, classification or clustering models is required</li>
+  <li>Is the application time sensitive.</li>
+  <li>Do we need to update the model frequently. How much time it takes in training the models</li>
+  <li>As the size of data increases, would we be able to scale the computation</li>
+</ul>
+
+<p>It is better to start with simpler models like NaiveBayes and linear/logistic regression etc and get a base performance. It also gives a measure of how far we are from our target accuracy and becomes the base from where further iterations are done. We can create different models by varying the feature sets and applying different methods. We can also create models which are combination of other models.</p>
+
+<p>The models are then tested for accuracy in prediction. Accuracy tests depend on the type of model. For regression models it could be the RMSE, for classification would be the confusion matrix, precision, recall and fscore.</p>
+
+<p>Models are then further optimised to improve their precision or computation speed.</p>
+
+<h3 id="deployment">Deployment</h3>
+<p>At this stage the models and the results are presented for project delivery. If the next stage involves deployment of models into a production system then this would involve working together with the software team to integrate the models into their existing workflow.</p>
+
+<p>There are various options for integration. If the model is built using R then we can save the model object and this binary object is then loaded in a new R session with latest data for making predictions. This could be a batch job done over hadoop cluster or single machine. In stream processing environment it would be better to decouple the prediction part from main workflow to make the system more responsive. You could even have a prediction api as a service to decouple this so that this api service could be independently scaled on demand.</p>
+
+<p>However be the deployment scenario, it is important to capture the metrics of predicted results for continuous model improvement.</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

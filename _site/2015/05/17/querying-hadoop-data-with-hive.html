@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Querying Hadoop Data With Hive</title>
+  <meta name="description" content="Hive provides SQL like query interface to Apache Hadoop. Hive in turn does the computation over large number of nodes on hadoop cluster to provide the result...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2015/05/17/querying-hadoop-data-with-hive.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Querying Hadoop Data With Hive</h1>
+    <p class="post-meta">
+	<time datetime="2015-05-17T00:00:00+08:00" itemprop="datePublished">May 17, 2015
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/hadoop/" >hadoop</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/bigdata/" >bigdata</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/hive/" >hive</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>Hive provides SQL like query interface to Apache Hadoop. Hive in turn does the computation over large number of nodes on hadoop cluster to provide the results. This enables doing easy ad-hoc data analysis and summarization queries.</p>
+
+<p>Hive does not support index queries like RDBMS, but unlike other relational database it scales very well. Hive is not designed for real time queries and row level updates. It is best suited to batch jobs over large sets of immutable data like web logs.</p>
+
+<h4 id="running-hive-in-hadoop-cluster">Running Hive in Hadoop Cluster</h4>
+
+<p>Inside the hadoop cluster the data is distributed over by HDFS. You can run hive queries from namenode or any of the data nodes.</p>
+
+<h4 id="hive-metastore-and-tables">Hive Metastore and tables</h4>
+
+<p>Hive uses a metastore,a database, to store information about the tables it knows. Hive tables are just information about where the data is stored and in which format.</p>
+
+<p>Hive has two kind of tables</p>
+
+<ul>
+  <li>managed</li>
+  <li>externa</li>
+</ul>
+
+<h4 id="managed-table">Managed Table</h4>
+
+<p>Managed tables data is controlled by Hive. It will create a directory for the data on HDFS and when we drop the table it will delete the data.</p>
+
+<p>When you create a table in hive, the default location is inside the directory “/user/hive/warehouse/”.
+You can load the data into table by</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">CREATE TABLE mytablename<span class="o">(</span>id INT, something STRING<span class="o">)</span> ROW FORMAT
+              DELIMITED FIELDS TERMINATED BY <span class="s1">','</span>
+	    LINES TERMINATED BY <span class="s1">'\n'</span> STORED AS TEXTFILE<span class="p">;</span></code></pre></figure>
+
+<p>This will create the directory “/user/hive/warehouse/mytablename”</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LOAD DATA INPATH <span class="s1">'/path/to/data/rawdata'</span> INTO TABLE mytablename<span class="p">;</span></code></pre></figure>
+
+<p>When you drop the table, the raw data is lost as the directory corresponding to the table in warehouse is deleted.</p>
+
+<h4 id="external-table">External Table</h4>
+<p>To create external table, simply point to the location of data while creating the tables and mark the table “EXTERNAL”. This will ensure that the data is not moved into a location inside the warehouse directory.</p>
+
+<p>HiveQL is Hive’s query language and is dialect of SQL.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">CREATE EXTERNAL TABLE mytablename<span class="o">(</span>id INT, something STRING<span class="o">)</span> ROW FORMAT
+              DELIMITED FIELDS TERMINATED BY <span class="s1">','</span>
+	    LINES TERMINATED BY <span class="s1">'\n'</span> STORED AS TEXTFILE
+	    LOCATION <span class="s1">'/path/to/mydata'</span><span class="p">;;</span></code></pre></figure>
+
+<p>When you drop the table the data at the location is not deleted.</p>
+
+<p>You can have multiple tables all pointing to the same raw data</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">hive <span class="nt">-e</span> <span class="s1">'SELECT * FROM departments'</span>
+<span class="c"># suppress the message and show only results</span>
+hive <span class="nt">-S</span> <span class="nt">-e</span> <span class="s1">'SELECT * FROM departments'</span> 
+hive <span class="nt">-S</span> <span class="nt">-e</span> <span class="s1">'SELECT * FROM departments where size &gt; 10 AND location = "NY" AND budget IS NOT NULL'</span> </code></pre></figure>
+
+<h4 id="sortby-vs-orderby">SortBy Vs Orderby</h4>
+<p>Orderby requires one reducer to sort the final output. If the number of rows in the output is too large, the single reducer could take a very long time to finish.</p>
+
+<p>SortBy sorts the rows before feeding the rows to a reducer.</p>
+
+<p>The difference between “order by” and “sort by” is that the former guarantees total order in the output while the latter only guarantees ordering of the rows within a reducer. If there are more than one reducer, “sort by” may give partially ordered final results.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">hive <span class="nt">-S</span> <span class="nt">-e</span> <span class="s1">'SELECT * FROM departments order by size DESC'</span> 
+<span class="c">#this sorts the data by reducer and not globally, which can be much faster for large data sets.</span>
+hive <span class="nt">-S</span> <span class="nt">-e</span> <span class="s1">'SELECT * FROM departments sort by size DESC'</span> 
+show tables</code></pre></figure>
+
+<h4 id="distribute-by-and-cluster-by">Distribute By And Cluster By</h4>
+
+<p>Hive uses the columns in Distribute By to distribute the rows among reducers. All rows with the same Distribute By columns will go to the same reducer. However, Distribute By does not guarantee clustering or sorting properties on the distributed keys.</p>
+
+<p>Cluster By is a short-cut for both Distribute By and Sort By. Clustering the sorting would provide a tremendous performance improvement since the sort can potentially be done by hundreds of cluster nodes in parallel.</p>
+
+<p>Ref : <a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+SortBy">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+SortBy</a></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">hive <span class="nt">-S</span> <span class="nt">-e</span> <span class="s1">'SELECT * FROM departments Distribute By location
+hive -S -e '</span>SELECT <span class="k">*</span> FROM departments Distribute By location SORTBY location,size
+hive <span class="nt">-S</span> <span class="nt">-e</span> <span class="s1">'SELECT * FROM departments CLUSTER BY location</span></code></pre></figure>
+
+<h4 id="join-tables">Join Tables</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">CREATE TABLE school <span class="o">(</span>name STRING, location STRING<span class="o">)</span> ROW FORMAT DELIMITED FIELDS TERMINATED BY <span class="s1">'\t'</span><span class="p">;</span>
+CREATE TABLE student <span class="o">(</span>name STRING, school STRING<span class="o">)</span> ROW FORMAT DELIMITED FIELDS TERMINATED BY <span class="s1">'\t'</span><span class="p">;</span>
+
+SELECT sc.name
+FROM school sc
+JOIN student st
+ON sc.name<span class="o">=</span> st.school<span class="p">;</span></code></pre></figure>
+
+<h4 id="storage-formats">Storage Formats</h4>
+
+<p>TEXTFILE</p>
+
+<p>Text file format can load data of form CSV (Comma Separated Values), delimited by Tabs, Spaces and JSON data.By default if we use TEXTFILE format then each line is considered as a record.</p>
+
+<p>SEQUENCEFILE</p>
+
+<p>Sequence files are flat files consisting of binary key-value pairs which can be split by hadoop and distributed across map jobs. The main use of these files is to club two or more smaller files and make them as a one sequence file.</p>
+
+<p>There are three types of sequence files:</p>
+<ul>
+  <li>Uncompressed key/value records.</li>
+  <li>Record compressed key/value records :only values’ are compressed here</li>
+  <li>Block compressed key/value records – both keys and values are collected in ‘blocks’ separately and compressed.</li>
+</ul>
+
+<p>RCFILE</p>
+
+<p>RCFILE stands of Record Columnar File which is another type of binary file format which offers high compression rate. This column oriented storage is very useful while performing analytics. It is easy to perform analytics when we “hive’ a column oriented storage type.</p>
+
+<p>ORCFILE</p>
+
+<p>ORC stands for Optimized Row Columnar which means it can store data in an optimized way than the other file formats and is also optimized for speed.</p>
+
+<p>Ref: <a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+ORC#LanguageManualORC-ORCFileFormat">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+ORC#LanguageManualORC-ORCFileFormat</a></p>
+
+<h4 id="compression">Compression</h4>
+
+<p>Data stored in Gzip or Bzip2 can be directly imported into a table stored as TextFile. The compression will be detected automatically and the file will be decompressed on-the-fly during query execution</p>
+
+<p>However data in compressed format cannot be split into chunks/blocks to run multiple maps in parallel.The recommended practice is to insert data into another table, which is stored as a SequenceFile.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">CREATE TABLE raw <span class="o">(</span>line STRING<span class="o">)</span>
+   ROW FORMAT DELIMITED FIELDS TERMINATED BY <span class="s1">'\t'</span> LINES TERMINATED BY <span class="s1">'\n'</span><span class="p">;</span>
+ 
+CREATE TABLE raw_sequence <span class="o">(</span>line STRING<span class="o">)</span>
+   STORED AS SEQUENCEFILE<span class="p">;</span>
+ 
+LOAD DATA LOCAL INPATH <span class="s1">'/tmp/weblogs/20090603-access.log.gz'</span> INTO TABLE raw<span class="p">;</span>
+ 
+SET hive.exec.compress.output<span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+SET io.seqfile.compression.type<span class="o">=</span>BLOCK<span class="p">;</span> <span class="nt">--</span> NONE/RECORD/BLOCK <span class="o">(</span>see below<span class="o">)</span>
+INSERT OVERWRITE TABLE raw_sequence SELECT <span class="k">*</span> FROM raw<span class="p">;</span></code></pre></figure>
+
+<p>Ref: <a href="https://cwiki.apache.org/confluence/display/Hive/CompressedStorage">https://cwiki.apache.org/confluence/display/Hive/CompressedStorage</a></p>
+
+<h4 id="using-sqoop">Using Sqoop</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># dump data to text file and load it into hive table</span>
+<span class="nb">echo</span> <span class="s1">'data'</span> <span class="o">&gt;</span> /tmp/dummy.txt
+hive <span class="nt">-e</span> <span class="s1">'create table dummy (value String);'</span>
+Load data <span class="nb">local </span>inpath <span class="s1">'/tmp/dummy.txt'</span> overwrite into table dummy
+describe formatted dummy
+
+<span class="c">#load data into hive using sqoop</span>
+sqoop <span class="nb">export</span> <span class="nt">--connect</span> <span class="s2">"jdbc:mysql://quickstart.cloudera:3306/retail_db"</span> <span class="se">\</span>
+  <span class="nt">--username</span> retail_dba <span class="se">\</span>
+  <span class="nt">--password</span> cloudera <span class="se">\</span>
+  <span class="nt">--table</span> departments_test <span class="se">\</span>
+  <span class="nt">--export-dir</span> /user/hive/warehouse/departments_test <span class="se">\</span>
+  <span class="nt">--input-fields-terminated-by</span> <span class="s1">'\001'</span> <span class="se">\</span>
+  <span class="nt">--input-lines-terminated-by</span> <span class="s1">'\n'</span> <span class="se">\</span>
+  <span class="nt">--num-mappers</span> 2 <span class="se">\</span>
+  <span class="nt">--batch</span> <span class="se">\</span>
+  <span class="nt">--outdir</span> java_files <span class="se">\</span>
+  <span class="nt">--input-null-string</span> nvl <span class="se">\</span>
+  <span class="nt">--input-null-non-string</span> <span class="nt">-1</span></code></pre></figure>
+
+<p>Tables are stored as directories under Hive’s warehouse directory, which is controlled by the hive.metastore.warehouse.dir property and defaults to /user/hive/warehouse.
+You can also create external tables where you point hive to location of data storage.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">create external table external_table <span class="o">(</span>dummy string<span class="o">)</span> location <span class="s1">'/user/cloudera/external_table'</span><span class="p">;</span>
+soad data inpath <span class="s1">'/user/cloudera/data.txt'</span> into table external_table<span class="p">;</span>
+drop table external_table</code></pre></figure>
+
+<p>When you drop an external table, Hive will leave the data untouched and only delete the metadata.</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

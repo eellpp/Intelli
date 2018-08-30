@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>IntelliSignals</title>
+  <meta name="description" content="Intelligent systems over Cloud
+">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="home">
+
+  <ul class="post-list">
+    
+    
+
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2016/03/12/akka-cluster-with-router-pools.html">Akka Cluster With Router Pools</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Mar 12, 2016
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/akka/" >akka</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/scala/" >scala</a>
+			 
+		
+		</span>	
+	</div>
+	With Akka cluster we have two options while creating routers. Group and Pool. The pool option is better suited when we are trying to scale a computing operation across nodes. The activator template has example of this kind of router The conf file for a Pool router: akka.actor.deployment { /statsService/singleton/workerRouter { router = consistent-hashing-pool cluster { enabled = on max-nr-of-instances-per-node = 16 allow-local-routees = on use-role = compute } } } Assuming that each machine...<br> 
+	<div><a href="/2016/03/12/akka-cluster-with-router-pools.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2016/01/11/data-processing-with-apache-spark.html">Data Processing With Apache Spark</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Jan 11, 2016
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/bigdata/" >bigdata</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/analytics/" >analytics</a>
+			 
+		
+		</span>	
+	</div>
+	Spark is a big data processing framework which enables fast and advanced analytics computation over hadoop clusters. Spark Architecture A Spark application consists of: a driver program and a list of executors. The driver program uses the SparkContext object to coordinate the running of the Spark applications run as independent sets of processes on a cluster The SparkContext can connect to several types of cluster managers Standalone cluster manager Mesos YARN These cluster managers allocate...<br> 
+	<div><a href="/2016/01/11/data-processing-with-apache-spark.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2016/01/11/hadoop-ecosystem.html">Hadoop Ecosystem</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Jan 11, 2016
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/hadoop/" >hadoop</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/bigdata/" >bigdata</a>
+			 
+		
+		</span>	
+	</div>
+	Hadoop Installation on Mac Installation Download the latest version of hadoop binaries and extract it in local folder On Mac you can also install with the brew command brew install hadoop (The current version at writing was 2.7.3) This installs hadoop at /usr/local/Cellar/hadoop/2.7.3 The current JDK version was 1.8 and the java home was set up as /Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home It is a good practice to set this up in .bashrc so that it could be picked...<br> 
+	<div><a href="/2016/01/11/hadoop-ecosystem.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/12/24/predictive-analytics-project-workflow.html">Predictive Analytics Project Workflow</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Dec 24, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/analytics/" >analytics</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/bigdata/" >bigdata</a>
+			 
+		
+		</span>	
+	</div>
+	There are three main stages in a predictive analytics project Requirement gathering Data modeling Delivery and deployment Requirement Gathering While working out the requirements for a predictive analytics project it is important to define the objectives clearly. Care should be taken to avoid making the objectives overly broad or overly specific. For example, if we are measuring the customer churn at an online portal, we can define the task as the percentage of customers who...<br> 
+	<div><a href="/2015/12/24/predictive-analytics-project-workflow.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/12/17/topic-model-with-r.html">Topic Model With R</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Dec 17, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/R/" >R</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/nlp/" >nlp</a>
+			 
+		
+		</span>	
+	</div>
+	Given a corpus we can use topic modelling to get insights into the structure of information embedded in the docs. LDA is topic modelling algorithm that can be used for this purpose. LDA is a generative algorithm that assumes documents as a bag of words where each document has mixture of topics and each topic has a discrete probability distribution of words. In LDA the topic distribution is assumed to have a Dirichlet prior which...<br> 
+	<div><a href="/2015/12/17/topic-model-with-r.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/11/22/protocol-buffers-for-sending-data-between-services.html">Protocol Buffers for Sending Data Between Services</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Nov 22, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/tools/" >tools</a>
+			 
+		
+		</span>	
+	</div>
+	Google Protocol Buffers provides a useful method to send data between services in binary format. Once the schema is defined then there are parsers in various languages that can consume the data. This handles the case of future updates when there are modifications to schema and it has to be transparently handled across services without breaking them.
+
+https://developers.google.com/protocol-buffers/
+
+<br> 
+	<div><a href="/2015/11/22/protocol-buffers-for-sending-data-between-services.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/11/18/building-logistic-regression-models.html">Building Logistic Regression Models</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Nov 18, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/R analytics/" >R analytics</a>
+			 
+		
+		</span>	
+	</div>
+	Logistic regression estimates the probability of the output variable based on the linear combination of one or more predictor variables by using the logit function. The nonlinear transformation of the logit function makes it useful for complex classification models. Assumptions of logistic regression Logistic regression makes fewer assumptions about the input than linear regression. It does not need a linear relationship between the dependent and independent variables The features are no longer assumed to be...<br> 
+	<div><a href="/2015/11/18/building-logistic-regression-models.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/08/22/scala-json-parsing-with-play-json.html">Scala Json Parsing With Play-JSON</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Aug 22, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/scala/" >scala</a>
+			 
+		
+		</span>	
+	</div>
+	There are many JSON libraries for scala but here we are using play-json which is part of Play framework but also can be used independently. I am using ammonite repl to try out the json parsing on console. # load the libraries load.ivy("com.typesafe.play" %% "play-json" % "2.4.0") import play.libs.Json._ var rawJson = """ {"name": "John", "age": 20, "address": "#42 milky way", "tags" : [ "freshman", "scholar" ] } """ The first step is going from...<br> 
+	<div><a href="/2015/08/22/scala-json-parsing-with-play-json.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/08/20/using-opsworks-for-app-deployment.html">OpsWorks for App Deployment</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Aug 20, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/opsworks/" >opsworks</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/aws/" >aws</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/devops/" >devops</a>
+			 
+		
+		</span>	
+	</div>
+	AWS OpsWorks is based on Chef, a tool for configuring and automating the infrastructure deployments. Since it is based on Chef, it comes with all the benefits of cookbooks and recipes and the community resources. In addition OpsWorks provides AWS specific features like auto scaling, monitoring, access to other aws resources, security and easy management of server nodes. OpsWorks has the concept of stacks and layers. A stack describes all the resources of your entire...<br> 
+	<div><a href="/2015/08/20/using-opsworks-for-app-deployment.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/08/20/hadoop-data-import-export-with-sqoop.html">Hadoop data import/export with Sqoop</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Aug 20, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/hadoop/" >hadoop</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/bigdata/" >bigdata</a>
+			 
+		
+		</span>	
+	</div>
+	Apache Sqoop is an open source tool that allows to extract data from a structured data store into Hadoop for further processing. In addition to writing the contents of the database table to HDFS, Sqoop also provides you with a generated Java source file (widgets.java) written to the current local directory. Sqoop is a client command and there is no daemon process for it. It depends on HDFS and YARN and database drivers to which...<br> 
+	<div><a href="/2015/08/20/hadoop-data-import-export-with-sqoop.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/08/14/useful-r-libraries.html">R packages for predictive analytics</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Aug 14, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/R/" >R</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/analytics/" >analytics</a>
+			 
+		
+		</span>	
+	</div>
+	These are the libraries that over the years I have found useful repeatedly at work Text processing tm : for text analysis quanteda : text processing Data modeling topicmodels : for LDA topic model caret: for various data preprocessing functions, regression and classification ROCR : model tuning and analysis e1071 : building models Time series zoo :time series objects xts : times series data manipulation quantmod : financial charting and analysis Workflow devtools : for...<br> 
+	<div><a href="/2015/08/14/useful-r-libraries.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/08/05/hadoop-architecture-overview.html">Hadoop Architecture Overview</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Aug 5, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/hadoop/" >hadoop</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/bigdata/" >bigdata</a>
+			 
+		
+		</span>	
+	</div>
+	Hadoop and bigdata are synonymous. This is because when you are processing data at a scale at which it is innefficient to process it on a single machine, you have to consider running it over a multiple machines or compute clusters. Hadoop framework provides tools to enable this by promising to do two things : manage the infrastructure and running of jobs split across machines and delivering the results. Hadoop architecture consists of distributed storage...<br> 
+	<div><a href="/2015/08/05/hadoop-architecture-overview.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+    			
+			
+	
+	
+		
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/07/09/public-corpus-for-nlp-analysis.html">Public Datasets for Analysis</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Jul 9, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/nlp/" >nlp</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/R/" >R</a>
+			 
+		
+		</span>	
+	</div>
+	Model Datasets for Learning Select some datasets which are well understood. We should be know the problem context for which the data was collected and the outcomes. It should also be well published so that the nature of underlying data is well known. While working with these model datasets our goal is to reduce the unknowns so that we could focus on evaluating the algorithms and tools. These datasets should be of smaller size so...<br> 
+	<div><a href="/2015/07/09/public-corpus-for-nlp-analysis.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/06/14/scala-project-kickstart-at-console.html">Scala Project Kickstart at Console</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Jun 14, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/scala/" >scala</a>
+			 
+		
+		</span>	
+	</div>
+	Use giter8 to build a basic project structure https://github.com/n8han/giter8 #Install giter8 on OSX brew install giter8 Giter8 provides templates to kickstart the projects. The list of templates can be found on their github page https://github.com/n8han/giter8/wiki/giter8-templates #Applying a simple template to kickstart g8 chrislewis/basic-project Provide the basic information that it asks in the prompt Go to the project directory and check out the build.sbt to verify the content and modify if required. # compile sbt compile...<br> 
+	<div><a href="/2015/06/14/scala-project-kickstart-at-console.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/05/17/querying-hadoop-data-with-hive.html">Querying Hadoop Data With Hive</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">May 17, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/hadoop/" >hadoop</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/bigdata/" >bigdata</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/hive/" >hive</a>
+			 
+		
+		</span>	
+	</div>
+	Hive provides SQL like query interface to Apache Hadoop. Hive in turn does the computation over large number of nodes on hadoop cluster to provide the results. This enables doing easy ad-hoc data analysis and summarization queries. Hive does not support index queries like RDBMS, but unlike other relational database it scales very well. Hive is not designed for real time queries and row level updates. It is best suited to batch jobs over large...<br> 
+	<div><a href="/2015/05/17/querying-hadoop-data-with-hive.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+    			
+			
+	
+	
+		
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/05/15/four-node-development-cluster-with-spark-hadoop-hive-and-vagrant.html">Four Node Development Cluster With Spark,Hadoop,Hive and Vagrant</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">May 15, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/hadoop/" >hadoop</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/spark/" >spark</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/bigdata/" >bigdata</a>
+			 
+		
+		</span>	
+	</div>
+	I wanted to have set up a hadoop development cluster on MacBook Pro which i can tinker. It was around the same time that i upgraded my Macbook Pro memory to 16GB and so it helps. The project is at GitHub. https://github.com/eellpp/spark-yarn-hadoop-cluster-vagrant Vagrant project to spin up a cluster of 4 nodes with 64-bit CentOS6.5 Linux virtual machines with Hadoop v2.6.0, Spark v1.6.1. and Hive v1.2.1 This is suitable as a quick hands-on and develpoment...<br> 
+	<div><a href="/2015/05/15/four-node-development-cluster-with-spark-hadoop-hive-and-vagrant.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/05/15/automate-infrastructure-deployment-with-chef.html">Automate Infrastructure Deployment With Chef</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">May 15, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/chef/" >chef</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/devops/" >devops</a>
+			 
+		
+		</span>	
+	</div>
+	Chef can model your infrastructure as source code. This makes the process of infrastructure deployment repeatable and maintainable. It has three essential components Chef Server WorkStation and Nodes Workstation is the development machine. Changes are pushed from WorkStation to Chef Server which in turn manages the nodes. The source code to model the infrastructure are scripts called as recipes in chef terminology. A collection of this recipe which manages the application could be a cookbook....<br> 
+	<div><a href="/2015/05/15/automate-infrastructure-deployment-with-chef.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/05/09/running-hadoop-in-pseudo-distributed-mode-in-local-machine.html">Running Hadoop in Pseudo-distributed Mode on Mac OSX</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">May 9, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/hadoop/" >hadoop</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/mac/" >mac</a>
+			 
+		
+		</span>	
+	</div>
+	Instead of the default non-distributed or standalone mode where hadoop runs as a single Java process, in a single JVM instance with no daemons and without HDFS, we can run it in the pseudo-distributed mode so as it make it closer to the production environment. In this mode hadoop simulates a cluster on a small scale. Different Hadoop daemons run in different JVM instances, but on a single machine and HDFS is used instead of...<br> 
+	<div><a href="/2015/05/09/running-hadoop-in-pseudo-distributed-mode-in-local-machine.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/03/12/managing-aws-access-with-iam.html">Managing AWS Access With IAM</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Mar 12, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/cloud/" >cloud</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/aws/" >aws</a>
+			 
+		
+		</span>	
+	</div>
+	When working with AWS the first thing to look into is how to secure your access to aws resources. Basically authentication, access policies and restrictions. Since this is a cloud environment, you have to be circumspect of everything from security perspective and double check each of them. Anything that is not secured will be broken into. The good thing is that AWS provides easy and comprehensive security service with IAM. It comes at no additional...<br> 
+	<div><a href="/2015/03/12/managing-aws-access-with-iam.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/03/01/continuous-integrations-with-jenkins-and-bitbucket.html">Continuous Integrations With Jenkins and BitBucket</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Mar 1, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/ci/" >ci</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/tools/" >tools</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/devops/" >devops</a>
+			 
+		
+		</span>	
+	</div>
+	Two essential components required for continuous integration are: a central place to hold the repository and automated build tool. With these in place, at any time, anyone can checkout a working version of the code which could be deployed or further enhanced with additional features. We are using BitBucket to hold our Repo and Jenkins as our Continuous Integration build tool. The article details steps for setting this up. The Integration server was running on...<br> 
+	<div><a href="/2015/03/01/continuous-integrations-with-jenkins-and-bitbucket.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/02/08/methods-for-evaluating-model-performance.html">Methods for Evaluating Model Performance</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Feb 8, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/R/" >R</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/analytics/" >analytics</a>
+			 
+		
+		</span>	
+	</div>
+	The methods used to evaluate the prediction accuracy of models depend on the type of models involved. Regression models In regression models we are dealing with numeric values. We are interested in knowing how far away are our predicted values from the expected values. For this purpose we calculate the Root Mean Square Error (RMSE). This is the square root of the average of the square of errors. We evaluate the model based on the...<br> 
+	<div><a href="/2015/02/08/methods-for-evaluating-model-performance.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/01/18/socket-io-cluster-with-nginx-as-reverse-proxy.html">Socket.io Cluster With Nginx as Reverse Proxy</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Jan 18, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/socketio/" >socketio</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/nodejs/" >nodejs</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/devops/" >devops</a>
+			 
+		
+		</span>	
+	</div>
+	Node.js by default runs on a single process and at max utilizes one CPU. To take the full advantage of a multi core system, multiple node processes can be run with a frontend proxy interfacing with the client. This scenario can be supported in node.js using the cluster module. However with websocket additionally it is required to provide a mapping between the client session-id and the server handling the client requests. This is achieved by...<br> 
+	<div><a href="/2015/01/18/socket-io-cluster-with-nginx-as-reverse-proxy.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2015/01/12/iris-r-dataset-learning.html">R Iris Dataset</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Jan 12, 2015
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/R/" >R</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/dataset/" >dataset</a>
+			 
+		
+		</span>	
+	</div>
+	Iris DataSet Iris DataSet The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other. Predicted attribute: class of iris plant. http://archive.ics.uci.edu/ml/datasets/Iris data(iris) head(iris) ## Sepal.Length Sepal.Width Petal.Length Petal.Width Species ## 1 5.1 3.5 1.4 0.2 setosa ## 2 4.9 3.0 1.4 0.2 setosa ## 3 4.7 3.2...<br> 
+	<div><a href="/2015/01/12/iris-r-dataset-learning.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2014/12/24/corpus-analysis-with-r.html">Corpus Analysis With R</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Dec 24, 2014
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/R/" >R</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/analytics/" >analytics</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/nlp/" >nlp</a>
+			 
+		
+		</span>	
+	</div>
+	The tm package provides functionality for exploratory analysis on text corpus. The nature of text corpus has a big effect on the data modeling. Some of the text corpus that i have worked on in past includes Structured news feeds Unstructured html news webpages Web page Comments Tweets Posts on news sharing forum corpus Emails After the text preprocessing stage all of these would be a list of documents. But the nature of data in...<br> 
+	<div><a href="/2014/12/24/corpus-analysis-with-r.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2014/12/22/scala-short-learning-notes.html">Scala Short Learning Notes</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Dec 22, 2014
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/scala/" >scala</a>
+			 
+		
+		</span>	
+	</div>
+	These are various notes and snippets from various sources that i found useful while learning scala Returns are discouraged In fact, odd problems can occur if you use return statements in Scala because it changes the meaning of your program. For this reason, return statement usage is discouraged. The return keyword is not “optional” or “inferred”; it changes the meaning of your program, and you should never use it. http://tpolecat.github.io/2014/05/09/return.html Important thing in scala collection...<br> 
+	<div><a href="/2014/12/22/scala-short-learning-notes.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2014/12/14/functional-r.html">Functional R</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Dec 14, 2014
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/R/" >R</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/analytics/" >analytics</a>
+			 
+		
+		</span>	
+	</div>
+	Apply functions mapply Use mapply to operate on each element of multiple vectors find say we have monthly sales for two years and we want to find monthwise delta mapply(function(x,y) x - y, year2,year1 ) [1] 2 4 6 8 10 lapply Use lapply to operate on each element of a list and return a list lapply(mtcars$mpg,function(x) sqrt(x)) sapply Use sapply to operate on each element of a list and return a vector sapply(mtcars$mpg,function(x) sqrt(x))...<br> 
+	<div><a href="/2014/12/14/functional-r.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2014/10/23/r-data-structure-common-operations.html">R Data Structure Common Operations</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Oct 23, 2014
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/R/" >R</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/analytics/" >analytics</a>
+			 
+		
+		</span>	
+	</div>
+	The common data structure in R are Vectors, List, Array, Matrix and Dataframe. ###Vector Operations # values from 1 :5 vec &lt;- c(1:5) vec &lt;- c(sample(5)) vec &lt;- rnorm(5,mean=2.5,sd=2) vec &lt;- c(letters[1:5]) vec_name &lt;- c("id" = 1, "age" = 21) vec_name &lt;- c("id" = 1:5, "age" = 21:25) id1 id2 id3 id4 id5 age1 age2 age3 age4 age5 1 2 3 4 5 21 22 23 24 25 # check whether value exists in vector...<br> 
+	<div><a href="/2014/10/23/r-data-structure-common-operations.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+    			
+			
+	
+	
+		
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2013/12/14/discriminative-vs-generative-classifiers.html">Discriminative vs Generative Classifiers</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Dec 14, 2013
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/algorithm/" >algorithm</a>
+			 
+		
+		</span>	
+	</div>
+	A generative algorithm models how the data was generated by estimating the assumptions and distribution of the original model that generated the data. If x is the input and y the output, then it tries to learn the joint probability distribution p(x,y). Example, in natural language processing, probabilistic Latent Semantic Analysis (pLSA) and Latent Dirichlet Allocation (LDA) is a generative model. It makes the assumption that each document contains mixture of topics and each word...<br> 
+	<div><a href="/2013/12/14/discriminative-vs-generative-classifiers.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2013/08/20/r-general-faq.html">R General FAQ</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Aug 20, 2013
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/R/" >R</a>
+			 
+		
+		</span>	
+	</div>
+	Pass by Promise R does not copy the variables when passing them around unless there is change involved. From the R language manuals http://cran.at.r-project.org/doc/manuals/R-lang.html#Evaluation R has a form of lazy evaluation of function arguments. Arguments are not evaluated until needed. It is important to realize that in some cases the argument will never be evaluated. Thus, it is bad style to use arguments to functions to cause side-effects. While in C it is common to...<br> 
+	<div><a href="/2013/08/20/r-general-faq.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2013/08/11/vim-references.html">Vim References</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Aug 11, 2013
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/vim/" >vim</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/tools/" >tools</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/devops/" >devops</a>
+			 
+		
+		</span>	
+	</div>
+	Boost your Vim Productivity Leader is an awesome idea. It allows for executing actions by key sequences instead of key combinations. Because I’m using it, I rarely need to press Ctrl-something combo to make things work. For long time I used , as my Leader key. Then, I realized I can map it to the most prominent key on my keyboard. Space. let mapleader = “&lt;Space&gt;” This turned my Vim life upside down. Now I...<br> 
+	<div><a href="/2013/08/11/vim-references.html">Read more...</a></div><br>
+      </li>
+    
+    
+    	
+   	
+		
+	
+	
+	
+	
+      <li style="border-bottom: 1px solid #e8e8e8;">
+
+        <h2 style="margin-bottom:0px">
+          <a class="post-link" href="/2013/03/21/vim-commands-i-use.html">Vim Commands frequently used</a>
+        </h2>
+	<div style="margin-bottom: 15px;">
+		<span class="post-meta">Mar 21, 2013
+		
+			
+
+			
+			|
+			<a href="
+			http://localhost:4000
+			/tag/vim/" >vim</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/tools/" >tools</a>
+			
+			<a href="
+			http://localhost:4000
+			/tag/devops/" >devops</a>
+			 
+		
+		</span>	
+	</div>
+	Using Spell check in vim # start the spell check :set spell # move forward to next misspelled word ]s # move backword to next misspelled word [s # suggest alternatives z= # add word to dictionary zg # mark words as incorrect zw Commenting/Uncommenting multiple lines or vertical column text selection To comment out blocks in vim: hit ctrl+v (visual block mode) use the down arrow keys to select the lines you want (it...<br> 
+	<div><a href="/2013/03/21/vim-commands-i-use.html">Read more...</a></div><br>
+      </li>
+    
+  </ul>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

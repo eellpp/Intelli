@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>OpsWorks for App Deployment</title>
+  <meta name="description" content="AWS OpsWorks is based on Chef, a tool for configuring and automating the infrastructure deployments. Since it is based on Chef, it comes with all the benefit...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2015/08/20/using-opsworks-for-app-deployment.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">OpsWorks for App Deployment</h1>
+    <p class="post-meta">
+	<time datetime="2015-08-20T00:00:00+08:00" itemprop="datePublished">Aug 20, 2015
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/opsworks/" >opsworks</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/aws/" >aws</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/devops/" >devops</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>AWS OpsWorks is based on Chef, a tool for configuring and automating the infrastructure deployments. Since it is based on Chef, it comes with all the benefits of cookbooks and recipes and the community resources. In addition OpsWorks provides AWS specific features like auto scaling, monitoring, access to other aws resources, security and easy management of server nodes.</p>
+
+<p>OpsWorks has the concept of stacks and layers. 
+A stack describes all the resources of your entire application. Within a stack are the Layers that allow to group the resources in architecture patters that could define the stack.It could be a database layer, web server layer and middleware layer etc. Each Layer has cookbooks and recipes which provide the scripts to manage the resources. Chef provides abstraction like roles, environments and databags etc which models the development and deployment workflow. OpsWorks builds on top of that by providing concept of Layers and Stack. This way of partitioning things allow better security and allows managing and scaling the components independently.</p>
+
+<p>To start with OpsWorks, you need create some IAM roles to enable access privileges.</p>
+
+<ul>
+  <li>Service Role: This role the allow OpsWorks to interact with other AWS service. The standard service role has permissions on EC2, CloudWatch, ELB, and RDS. You can create a custom role for access on other services.</li>
+  <li>EC2 Role: Another IAM role is to enables the instances in you stack to access various other services like s3 etc.</li>
+</ul>
+
+<p>From the OpsWorks Dashboard create a new Stack and within that add layers.
+Within each layer you can add instances. 
+Create an app and provide the location of source code destination. It could be a remote server, github or at S3. 
+Within the layers tab, provide the location of cookbooks source and add recipes to be  run at various stages like deployment (or at undeploy , shutdown etc). 
+Once these necessary configurations are over, deploy the application.</p>
+
+<p>With these steps it should be able to deploy a simple application. I will be expanding this further with details in adding other elements of stack like ELB and database instance. Also on doing these remotely with SDK.</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

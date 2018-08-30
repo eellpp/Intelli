@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Scala Json Parsing With Play-JSON</title>
+  <meta name="description" content="There are many JSON libraries for scala but here we are using play-json which is part of Play framework but also can be used independently.">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2015/08/22/scala-json-parsing-with-play-json.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Scala Json Parsing With Play-JSON</h1>
+    <p class="post-meta">
+	<time datetime="2015-08-22T00:00:00+08:00" itemprop="datePublished">Aug 22, 2015
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/scala/" >scala</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>There are many JSON libraries for scala but here we are using play-json which is part of Play framework but also can be used independently.</p>
+
+<p>I am using <a href="https://github.com/lihaoyi/Ammonite">ammonite repl</a> to try out the json parsing on console.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># load the libraries</span>
+load.ivy<span class="o">(</span><span class="s2">"com.typesafe.play"</span> %% <span class="s2">"play-json"</span> % <span class="s2">"2.4.0"</span><span class="o">)</span> 
+import play.libs.Json._
+
+var rawJson <span class="o">=</span> <span class="s2">""" {"</span>name<span class="s2">": "</span>John<span class="s2">", "</span>age<span class="s2">": 20, "</span>address<span class="s2">": "</span><span class="c">#42 milky way", "tags" : [ "freshman", "scholar" ] } """</span></code></pre></figure>
+
+<p>The first step is going from a JSON string to JsValue objects by parsing the json string. The JsValue tree can be parsed by using \ and \ where</p>
+
+<ul>
+  <li>\ selects an element in a JsObject, returning a JsValue</li>
+  <li>\ selects an element in the entire tree returning a Seq[JsValue]</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"name"</span>
+
+<span class="c"># convert from JsonValue to desired typing </span>
+<span class="o">(</span>Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"name"</span><span class="o">)</span>.as[String]
+<span class="o">(</span>Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"age"</span><span class="o">)</span>.as[Int]
+<span class="o">(</span>Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"age"</span><span class="o">)</span>.asOpt[Int]
+<span class="o">(</span>Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"name"</span> <span class="se">\ </span>“address” <span class="o">)</span>.as[String]
+<span class="c"># get the first tag</span>
+<span class="o">(</span>Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"tags"</span><span class="o">)(</span>0<span class="o">)</span>.as[String]
+
+<span class="c"># if this was an array of people information then we can take each of the name as</span>
+<span class="o">(</span>json <span class="se">\\</span> <span class="s2">"name"</span><span class="o">)</span>.map<span class="o">(</span>_.as[String]<span class="o">)</span>
+
+<span class="o">(</span>Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"name"</span><span class="o">)</span> match <span class="o">{</span>
+            <span class="k">case</span> JsDefined<span class="o">(</span>name<span class="p">)</span> <span class="o">=&gt;</span> println<span class="o">(</span>name<span class="o">)</span>
+            <span class="k">case</span> error:JsUndefined <span class="o">=&gt;</span> println<span class="o">(</span>error<span class="p">)</span>
+            <span class="k">case</span> _ <span class="o">=&gt;</span> println<span class="o">(</span><span class="s2">"Invalid type"</span><span class="p">)</span>
+  <span class="o">}</span></code></pre></figure>
+
+<p>If we are unsure about the content of JsValue then we can use asOpt which will return a None if deserializing causes and exception.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">(</span>Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"name"</span><span class="o">)</span>.asOpt[String]</code></pre></figure>
+
+<p>If we want a boolean then we can use the validate method which returns JsSuccess and JsError 
+Better to use the validate method to check the parsed json</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">(</span>Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"name"</span><span class="o">)</span>.validate[String] match <span class="o">{</span>
+  <span class="k">case</span> s: JsSuccess[String] <span class="o">=&gt;</span> println<span class="o">(</span><span class="s2">"Name: "</span> + s.get<span class="p">)</span>
+  <span class="k">case</span> e: JsError <span class="o">=&gt;</span> println<span class="o">(</span><span class="s2">"Errors: "</span> + JsError.toJson<span class="o">(</span>e<span class="p">)</span>.toString<span class="o">())</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>Convert the JSON structure to scala data model
+To read from json we need to define a Reads[T] object for each class which defines how we read each incoming json object for the class.
+Reads[T] and Writes[T] objects have to be defined to read and write from json object. If the format for both are same then instead we can use the Format[T] object</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="k">case</span> class Student <span class="o">(</span>name: String, age: Int<span class="p">)</span> 
+
+implicit val student : Reads[Student]  <span class="o">=</span> <span class="o">(</span>
+  <span class="o">(</span>JsPath <span class="se">\\</span> <span class="s2">"name"</span><span class="o">)</span>.read[String] and
+  <span class="o">(</span>JsPath <span class="se">\\</span> <span class="s2">"age"</span><span class="o">)</span>.read[Int]
+<span class="o">)(</span>Student<span class="o">)</span>
+
+val person <span class="o">=</span> Json.parse<span class="o">(</span>rawJson<span class="o">)</span>.as[Student] 
+studentsObj.name 
+studentsObj.age
+
+<span class="c">#Convert to a list of students</span>
+
+rawJson <span class="o">=</span> <span class="s2">""" [ {"</span>name<span class="s2">": "</span>John<span class="s2">", "</span>age<span class="s2">": 22 }, {"</span>name<span class="s2">": "</span>Alice<span class="s2">", "</span>age<span class="s2">": 20 } ] """</span>
+
+val people <span class="o">=</span> Json.parse<span class="o">(</span>rawJson<span class="o">)</span>.as[List[Students]] 
+<span class="c">#names of students</span>
+people.map<span class="o">(</span>_.name<span class="o">)</span></code></pre></figure>
+
+<h4 id="examples-of-reading-some-other-type-of-data-structures">Examples of reading some other type of data structures</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">rawJson <span class="o">=</span> <span class="s2">""" {"</span>school<span class="s2">": "</span>public school<span class="s2">" ,"</span>students<span class="s2">": [ {"</span>name<span class="s2">": "</span>John<span class="s2">", "</span>age<span class="s2">": 22 }, {"</span>name<span class="s2">": "</span>Alice<span class="s2">", "</span>age<span class="s2">": 20 } ] } """</span>
+
+val json <span class="o">=</span> <span class="o">(</span>Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"students"</span><span class="o">)</span>
+val nameReads: Reads[List[Students]] <span class="o">=</span> <span class="o">(</span>JsPath <span class="se">\ </span><span class="s2">"students"</span><span class="o">)</span>.read[List[Students]]
+val nameResult: JsResult[List[Students]] <span class="o">=</span> json.validate[List[Students]]<span class="o">(</span>nameReads<span class="o">)</span>
+
+val parseResult <span class="o">=</span> <span class="o">(</span>Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"students"</span><span class="o">)</span>.read[List[Students]]
+
+val people <span class="o">=</span> <span class="o">(</span>Json.parse<span class="o">(</span>rawJson<span class="o">)</span> <span class="se">\ </span><span class="s2">"students"</span><span class="o">)</span>.as[List[Students]] </code></pre></figure>
+
+<h4 id="handling-null-values">Handling null values</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">implicit val student : Reads[Student]  <span class="o">=</span> <span class="o">(</span>
+  <span class="o">(</span>JsPath <span class="se">\\</span> <span class="s2">"name"</span><span class="o">)</span>.readNullable[String] and
+  <span class="o">(</span>JsPath <span class="se">\\</span> <span class="s2">"age"</span><span class="o">)</span>.readNullable[Int]
+<span class="o">)(</span>Student<span class="o">)</span>
+With readNullable we get an Option[T] object which means that field itself is optional</code></pre></figure>
+
+<h4 id="handling-missing-values">Handling missing values</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">implicit val student : Reads[Student]  <span class="o">=</span> <span class="o">(</span>
+  <span class="o">(</span>JsPath <span class="se">\\</span> <span class="s2">"name"</span><span class="o">)</span>.read<span class="o">(</span> Reads.optionNoError[String] <span class="o">)</span> and
+  <span class="o">(</span>JsPath <span class="se">\\</span> <span class="s2">"age"</span><span class="o">)</span>.read[Reads.optionNoError[Int]]
+<span class="o">)(</span>Student<span class="o">)</span></code></pre></figure>
+
+<p>This is cause error if name and age are missing in the json data field</p>
+
+<h4 id="handling-validation">Handling validation</h4>
+<p>The read and readNullable have an implicit parameter which can be used for validation with constraints like email,  maxLength, filter, pattern and more …</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">  <span class="o">(</span>JsPath <span class="se">\\</span> <span class="s2">"name"</span><span class="o">)</span>.readNullable[String]<span class="o">(</span>minLength[String]<span class="o">(</span>10<span class="o">))</span> and
+  <span class="o">(</span>JsPath <span class="se">\\</span> <span class="s2">"email"</span><span class="o">)</span>.read[String]<span class="o">(</span>email<span class="o">)</span></code></pre></figure>
+
+<p>https://www.playframework.com/documentation/2.4.x/api/scala/index.html#play.api.libs.json.ConstraintReads</p>
+
+<p>Reference:</p>
+
+<ul>
+  <li>https://www.playframework.com/documentation/2.5.x/ScalaJson</li>
+</ul>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

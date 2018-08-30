@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>R Iris Dataset</title>
+  <meta name="description" content="Iris DataSet">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2015/01/12/iris-r-dataset-learning.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">R Iris Dataset</h1>
+    <p class="post-meta">
+	<time datetime="2015-01-12T00:00:00+08:00" itemprop="datePublished">Jan 12, 2015
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/R/" >R</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/dataset/" >dataset</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h2 id="iris-dataset">Iris DataSet</h2>
+
+<p>Iris DataSet
+The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.</p>
+
+<p>Predicted attribute: class of iris plant.
+<a href="http://archive.ics.uci.edu/ml/datasets/Iris">http://archive.ics.uci.edu/ml/datasets/Iris</a></p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">data</span><span class="p">(</span><span class="n">iris</span><span class="p">)</span><span class="w">
+</span><span class="n">head</span><span class="p">(</span><span class="n">iris</span><span class="p">)</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+## 3          4.7         3.2          1.3         0.2  setosa
+## 4          4.6         3.1          1.5         0.2  setosa
+## 5          5.0         3.6          1.4         0.2  setosa
+## 6          5.4         3.9          1.7         0.4  setosa</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">summary</span><span class="p">(</span><span class="n">iris</span><span class="p">)</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##   Sepal.Length    Sepal.Width     Petal.Length    Petal.Width   
+##  Min.   :4.300   Min.   :2.000   Min.   :1.000   Min.   :0.100  
+##  1st Qu.:5.100   1st Qu.:2.800   1st Qu.:1.600   1st Qu.:0.300  
+##  Median :5.800   Median :3.000   Median :4.350   Median :1.300  
+##  Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.199  
+##  3rd Qu.:6.400   3rd Qu.:3.300   3rd Qu.:5.100   3rd Qu.:1.800  
+##  Max.   :7.900   Max.   :4.400   Max.   :6.900   Max.   :2.500  
+##        Species  
+##  setosa    :50  
+##  versicolor:50  
+##  virginica :50  
+##                 
+##                 
+## </code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">str</span><span class="p">(</span><span class="n">iris</span><span class="p">)</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## 'data.frame':	150 obs. of  5 variables:
+##  $ Sepal.Length: num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+##  $ Sepal.Width : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+##  $ Petal.Length: num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+##  $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+##  $ Species     : Factor w/ 3 levels "setosa","versicolor",..: 1 1 1 1 1 1 1 1 1 1 ...</code></pre></figure>
+
+<h2 id="including-plots">Including Plots</h2>
+
+<h3 id="scatter-plot">Scatter Plot</h3>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">iris</span><span class="o">$</span><span class="n">Petal.Length</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">iris</span><span class="o">$</span><span class="n">Petal.Width</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="o">=</span><span class="n">iris</span><span class="o">$</span><span class="n">Species</span><span class="p">)</span></code></pre></figure>
+
+<p><img src="/assets/unnamed-chunk-3-1.svg" alt="plot of chunk unnamed-chunk-3" /></p>
+
+<p>We could use the pch argument (plot character) for specify the marking of Species. 
+ pch=21 is for filled circles, pch=22 for filled squares, pch=23 for filled diamonds, pch=24 or pch=25 for up/down triangles.</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">plot</span><span class="p">(</span><span class="n">iris</span><span class="o">$</span><span class="n">Petal.Length</span><span class="p">,</span><span class="w"> </span><span class="n">iris</span><span class="o">$</span><span class="n">Petal.Width</span><span class="p">,</span><span class="w"> </span><span class="n">pch</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">23</span><span class="p">,</span><span class="m">24</span><span class="p">,</span><span class="m">25</span><span class="p">)[</span><span class="nf">unclass</span><span class="p">(</span><span class="n">iris</span><span class="o">$</span><span class="n">Species</span><span class="p">)],</span><span class="w"> </span><span class="n">main</span><span class="o">=</span><span class="s2">"Iris Data"</span><span class="p">)</span></code></pre></figure>
+
+<p><img src="/assets/unnamed-chunk-4-1.svg" alt="plot of chunk unnamed-chunk-4" /></p>
+
+<p>or we can add color to them</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">plot</span><span class="p">(</span><span class="n">iris</span><span class="o">$</span><span class="n">Petal.Length</span><span class="p">,</span><span class="w"> </span><span class="n">iris</span><span class="o">$</span><span class="n">Petal.Width</span><span class="p">,</span><span class="n">pch</span><span class="o">=</span><span class="m">21</span><span class="p">,</span><span class="w"> </span><span class="n">bg</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"red"</span><span class="p">,</span><span class="s2">"green3"</span><span class="p">,</span><span class="s2">"blue"</span><span class="p">)[</span><span class="nf">unclass</span><span class="p">(</span><span class="n">iris</span><span class="o">$</span><span class="n">Species</span><span class="p">)],</span><span class="w"> </span><span class="n">main</span><span class="o">=</span><span class="s2">"Iris Data"</span><span class="p">)</span></code></pre></figure>
+
+<p><img src="/assets/unnamed-chunk-5-1.svg" alt="plot of chunk unnamed-chunk-5" /></p>
+
+<h4 id="scatter-plot-matrix">Scatter Plot Matrix</h4>
+<p>This shows the possible two-dimensional projections of multidimensional data</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">pairs</span><span class="p">(</span><span class="n">iris</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="m">4</span><span class="p">],</span><span class="w"> </span><span class="n">col</span><span class="o">=</span><span class="n">iris</span><span class="o">$</span><span class="n">Species</span><span class="p">,</span><span class="w"> </span><span class="n">pch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">21</span><span class="p">,</span><span class="w"> </span><span class="n">bg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"green3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"blue"</span><span class="p">)[</span><span class="nf">unclass</span><span class="p">(</span><span class="n">iris</span><span class="o">$</span><span class="n">Species</span><span class="p">)])</span></code></pre></figure>
+
+<p><img src="/assets/unnamed-chunk-6-1.svg" alt="plot of chunk unnamed-chunk-6" /></p>
+
+<p>From the plot the Petal.Length and Petal.Width can be best used for classifying the Species.</p>
+
+<p>This shows the possible two-dimensional projections of multidimensional data. 
+We can print the correlation coeff and p value in the top panel.</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">panel.cor</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">digits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">cex.cor</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p">)</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="n">usr</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">par</span><span class="p">(</span><span class="s2">"usr"</span><span class="p">);</span><span class="w"> </span><span class="nf">on.exit</span><span class="p">(</span><span class="n">par</span><span class="p">(</span><span class="n">usr</span><span class="p">))</span><span class="w">
+  </span><span class="n">par</span><span class="p">(</span><span class="n">usr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">))</span><span class="w">
+  </span><span class="c1"># correlation coefficient</span><span class="w">
+  </span><span class="n">r</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">cor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w">
+  </span><span class="n">txt</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">format</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="m">0.123456789</span><span class="p">),</span><span class="w"> </span><span class="n">digits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">digits</span><span class="p">)[</span><span class="m">1</span><span class="p">]</span><span class="w">
+  </span><span class="n">txt</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">paste</span><span class="p">(</span><span class="s2">"r= "</span><span class="p">,</span><span class="w"> </span><span class="n">txt</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">""</span><span class="p">)</span><span class="w">
+  </span><span class="n">text</span><span class="p">(</span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="m">0.6</span><span class="p">,</span><span class="w"> </span><span class="n">txt</span><span class="p">)</span><span class="w">
+
+  </span><span class="c1"># p-value calculation</span><span class="w">
+  </span><span class="n">p</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">cor.test</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="o">$</span><span class="n">p.value</span><span class="w">
+  </span><span class="n">txt2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">format</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="m">0.123456789</span><span class="p">),</span><span class="w"> </span><span class="n">digits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">digits</span><span class="p">)[</span><span class="m">1</span><span class="p">]</span><span class="w">
+  </span><span class="n">txt2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">paste</span><span class="p">(</span><span class="s2">"p= "</span><span class="p">,</span><span class="w"> </span><span class="n">txt2</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">""</span><span class="p">)</span><span class="w">
+  </span><span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="o">&lt;</span><span class="m">0.01</span><span class="p">)</span><span class="w"> </span><span class="n">txt2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">paste</span><span class="p">(</span><span class="s2">"p= "</span><span class="p">,</span><span class="w"> </span><span class="s2">"&lt;0.01"</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">""</span><span class="p">)</span><span class="w">
+  </span><span class="n">text</span><span class="p">(</span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="m">0.4</span><span class="p">,</span><span class="w"> </span><span class="n">txt2</span><span class="p">)</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span><span class="n">pairs</span><span class="p">(</span><span class="n">iris</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="m">4</span><span class="p">],</span><span class="w"> </span><span class="n">col</span><span class="o">=</span><span class="n">iris</span><span class="o">$</span><span class="n">Species</span><span class="p">,</span><span class="w"> </span><span class="n">pch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">21</span><span class="p">,</span><span class="w"> </span><span class="n">bg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"green3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"blue"</span><span class="p">)[</span><span class="nf">unclass</span><span class="p">(</span><span class="n">iris</span><span class="o">$</span><span class="n">Species</span><span class="p">)],</span><span class="w">
+      </span><span class="n">upper.panel</span><span class="o">=</span><span class="n">panel.cor</span><span class="p">)</span></code></pre></figure>
+
+<p><img src="/assets/unnamed-chunk-7-1.svg" alt="plot of chunk unnamed-chunk-7" /></p>
+
+<h2 id="using-svm-for-classifying-the-species">Using SVM for Classifying the Species</h2>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">library</span><span class="p">(</span><span class="s2">"e1071"</span><span class="p">)</span><span class="w">
+
+</span><span class="n">index</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">nrow</span><span class="p">(</span><span class="n">iris</span><span class="p">)</span><span class="w">
+</span><span class="n">testindex</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">sample</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="nf">trunc</span><span class="p">(</span><span class="nf">length</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">/</span><span class="m">4</span><span class="p">))</span><span class="w">
+</span><span class="n">testset</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">iris</span><span class="p">[</span><span class="n">testindex</span><span class="p">,]</span><span class="w">
+</span><span class="n">trainset</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">iris</span><span class="p">[</span><span class="o">-</span><span class="n">testindex</span><span class="p">,]</span><span class="w">
+
+</span><span class="n">svm_model</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">svm</span><span class="p">(</span><span class="n">Species</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="o">=</span><span class="n">trainset</span><span class="p">)</span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">svm_model</span><span class="p">)</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## 
+## Call:
+## svm(formula = Species ~ ., data = trainset)
+## 
+## 
+## Parameters:
+##    SVM-Type:  C-classification 
+##  SVM-Kernel:  radial 
+##        cost:  1 
+##       gamma:  0.25 
+## 
+## Number of Support Vectors:  44
+## 
+##  ( 8 18 18 )
+## 
+## 
+## Number of Classes:  3 
+## 
+## Levels: 
+##  setosa versicolor virginica</code></pre></figure>
+
+<p>Predict the testdata with model</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">prediction</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">svm_model</span><span class="p">,</span><span class="n">testset</span><span class="p">[,</span><span class="m">-5</span><span class="p">])</span><span class="w">
+</span><span class="n">tab</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">pred</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prediction</span><span class="p">,</span><span class="w"> </span><span class="n">true</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">testset</span><span class="p">[,</span><span class="m">5</span><span class="p">])</span><span class="w">
+</span><span class="n">tab</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##             true
+## pred         setosa versicolor virginica
+##   setosa         11          0         0
+##   versicolor      0          9         2
+##   virginica       0          0        15</code></pre></figure>
+
+<p>Tuning SVM for best cost and gamma</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">svm_tune</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">tune.svm</span><span class="p">(</span><span class="n">Species</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="o">=</span><span class="n">trainset</span><span class="p">,</span><span class="w"> 
+              </span><span class="n">kernel</span><span class="o">=</span><span class="s2">"radial"</span><span class="p">,</span><span class="w"> </span><span class="n">cost</span><span class="o">=</span><span class="m">10</span><span class="o">^</span><span class="p">(</span><span class="m">-1</span><span class="o">:</span><span class="m">2</span><span class="p">),</span><span class="w"> </span><span class="n">gamma</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">.5</span><span class="p">,</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">))</span><span class="w">
+
+</span><span class="n">print</span><span class="p">(</span><span class="n">svm_tune</span><span class="p">)</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## 
+## Parameter tuning of 'svm':
+## 
+## - sampling method: 10-fold cross validation 
+## 
+## - best parameters:
+##  gamma cost
+##    0.5    1
+## 
+## - best performance: 0.05378788</code></pre></figure>
+
+<p>Run SVM after tuning</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">svm_model_after_tune</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">svm</span><span class="p">(</span><span class="n">Species</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="o">=</span><span class="n">iris</span><span class="p">,</span><span class="w"> </span><span class="n">kernel</span><span class="o">=</span><span class="s2">"radial"</span><span class="p">,</span><span class="w"> </span><span class="n">cost</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">gamma</span><span class="o">=</span><span class="m">0.5</span><span class="p">)</span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">svm_model_after_tune</span><span class="p">)</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## 
+## Call:
+## svm(formula = Species ~ ., data = iris, kernel = "radial", cost = 1, 
+##     gamma = 0.5)
+## 
+## 
+## Parameters:
+##    SVM-Type:  C-classification 
+##  SVM-Kernel:  radial 
+##        cost:  1 
+##       gamma:  0.5 
+## 
+## Number of Support Vectors:  59
+## 
+##  ( 11 23 25 )
+## 
+## 
+## Number of Classes:  3 
+## 
+## Levels: 
+##  setosa versicolor virginica</code></pre></figure>
+
+<p>Predict the testdata with model</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">prediction</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">svm_model_after_tune</span><span class="p">,</span><span class="n">testset</span><span class="p">[,</span><span class="m">-5</span><span class="p">])</span><span class="w">
+</span><span class="n">tab</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">pred</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prediction</span><span class="p">,</span><span class="w"> </span><span class="n">true</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">testset</span><span class="p">[,</span><span class="m">5</span><span class="p">])</span><span class="w">
+</span><span class="n">tab</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##             true
+## pred         setosa versicolor virginica
+##   setosa         11          0         0
+##   versicolor      0          9         1
+##   virginica       0          0        16</code></pre></figure>
+
+<h2 id="k-means-clustering">K Means clustering</h2>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">set.seed</span><span class="p">(</span><span class="m">20</span><span class="p">)</span><span class="w">
+</span><span class="n">irisCluster</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">kmeans</span><span class="p">(</span><span class="n">iris</span><span class="p">[,</span><span class="w"> </span><span class="m">3</span><span class="o">:</span><span class="m">4</span><span class="p">],</span><span class="w"> </span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="n">nstart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">20</span><span class="p">)</span><span class="w">
+</span><span class="n">irisCluster</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## K-means clustering with 3 clusters of sizes 50, 52, 48
+## 
+## Cluster means:
+##   Petal.Length Petal.Width
+## 1     1.462000    0.246000
+## 2     4.269231    1.342308
+## 3     5.595833    2.037500
+## 
+## Clustering vector:
+##   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [36] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [71] 2 2 2 2 2 2 2 3 2 2 2 2 2 3 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3
+## [106] 3 2 3 3 3 3 3 3 3 3 3 3 3 3 2 3 3 3 3 3 3 2 3 3 3 3 3 3 3 3 3 3 3 2 3
+## [141] 3 3 3 3 3 3 3 3 3 3
+## 
+## Within cluster sum of squares by cluster:
+## [1]  2.02200 13.05769 16.29167
+##  (between_SS / total_SS =  94.3 %)
+## 
+## Available components:
+## 
+## [1] "cluster"      "centers"      "totss"        "withinss"    
+## [5] "tot.withinss" "betweenss"    "size"         "iter"        
+## [9] "ifault"</code></pre></figure>
+
+<p>Tabulate the clusters by species</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">table</span><span class="p">(</span><span class="n">irisCluster</span><span class="o">$</span><span class="n">cluster</span><span class="p">,</span><span class="w"> </span><span class="n">iris</span><span class="o">$</span><span class="n">Species</span><span class="p">)</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##    
+##     setosa versicolor virginica
+##   1     50          0         0
+##   2      0         48         4
+##   3      0          2        46</code></pre></figure>
+
+<p>From the table we can detect the mis-classification</p>
+
+<p>Plot the clusters</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">cluster</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">as.factor</span><span class="p">(</span><span class="n">irisCluster</span><span class="o">$</span><span class="n">cluster</span><span class="p">)</span><span class="w">
+</span><span class="n">plot</span><span class="p">(</span><span class="n">iris</span><span class="o">$</span><span class="n">Petal.Length</span><span class="p">,</span><span class="w"> </span><span class="n">iris</span><span class="o">$</span><span class="n">Petal.Width</span><span class="p">,</span><span class="n">pch</span><span class="o">=</span><span class="m">21</span><span class="p">,</span><span class="w"> </span><span class="n">bg</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"red"</span><span class="p">,</span><span class="s2">"green3"</span><span class="p">,</span><span class="s2">"blue"</span><span class="p">)[</span><span class="nf">unclass</span><span class="p">(</span><span class="n">cluster</span><span class="p">)],</span><span class="w"> </span><span class="n">main</span><span class="o">=</span><span class="s2">"Iris Data"</span><span class="p">)</span></code></pre></figure>
+
+<p><img src="/assets/unnamed-chunk-15-1.svg" alt="plot of chunk unnamed-chunk-15" />
+You can compare it with the plot of the original data.</p>
+
+<h2 id="using-randomforest-for-classification">Using RandomForest for classification</h2>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">library</span><span class="p">(</span><span class="n">randomForest</span><span class="p">)</span><span class="w">
+</span><span class="n">model.rf</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">randomForest</span><span class="p">(</span><span class="n">Species</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="o">=</span><span class="n">trainset</span><span class="p">)</span><span class="w">
+</span><span class="n">model.rf</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## 
+## Call:
+##  randomForest(formula = Species ~ ., data = trainset) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 2
+## 
+##         OOB estimate of  error rate: 5.31%
+## Confusion matrix:
+##            setosa versicolor virginica class.error
+## setosa         39          0         0  0.00000000
+## versicolor      0         38         3  0.07317073
+## virginica       0          3        30  0.09090909</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">pred.rf</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">model.rf</span><span class="p">,</span><span class="n">testset</span><span class="p">[,</span><span class="m">-5</span><span class="p">])</span><span class="w">
+</span><span class="n">tab</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">pred</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pred.rf</span><span class="p">,</span><span class="w"> </span><span class="n">true</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">testset</span><span class="p">[,</span><span class="m">5</span><span class="p">])</span><span class="w">
+</span><span class="n">tab</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##             true
+## pred         setosa versicolor virginica
+##   setosa         11          0         0
+##   versicolor      0          9         2
+##   virginica       0          0        15</code></pre></figure>
+
+<p>tuning Random Forest</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">tuneRF</span><span class="p">(</span><span class="n">trainset</span><span class="p">[,</span><span class="m">-5</span><span class="p">],</span><span class="n">trainset</span><span class="p">[,</span><span class="m">5</span><span class="p">],</span><span class="n">ntreeTry</span><span class="o">=</span><span class="m">100</span><span class="p">,</span><span class="w"> 
+     </span><span class="n">stepFactor</span><span class="o">=</span><span class="m">1.5</span><span class="p">,</span><span class="n">improve</span><span class="o">=</span><span class="m">0.01</span><span class="p">,</span><span class="w"> </span><span class="n">trace</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">plot</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">dobest</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## mtry = 2  OOB error = 5.31% 
+## Searching left ...
+## Searching right ...
+## mtry = 3 	OOB error = 5.31% 
+## 0 0.01</code></pre></figure>
+
+<p><img src="/assets/unnamed-chunk-18-1.svg" alt="plot of chunk unnamed-chunk-18" /></p>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##       mtry   OOBError
+## 2.OOB    2 0.05309735
+## 3.OOB    3 0.05309735</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">model.rf.tune</span><span class="w"> </span><span class="o">&lt;-</span><span class="n">randomForest</span><span class="p">(</span><span class="n">Species</span><span class="w"> </span><span class="o">~</span><span class="n">.</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">trainset</span><span class="p">,</span><span class="w"> </span><span class="n">mtry</span><span class="o">=</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">ntree</span><span class="o">=</span><span class="m">1000</span><span class="p">,</span><span class="w"> 
+     </span><span class="n">keep.forest</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">importance</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">,</span><span class="n">test</span><span class="o">=</span><span class="n">testset</span><span class="p">)</span><span class="w">
+</span><span class="n">model.rf.tune</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## 
+## Call:
+##  randomForest(formula = Species ~ ., data = trainset, mtry = 2,      ntree = 1000, keep.forest = TRUE, importance = TRUE, test = testset) 
+##                Type of random forest: classification
+##                      Number of trees: 1000
+## No. of variables tried at each split: 2
+## 
+##         OOB estimate of  error rate: 5.31%
+## Confusion matrix:
+##            setosa versicolor virginica class.error
+## setosa         39          0         0  0.00000000
+## versicolor      0         38         3  0.07317073
+## virginica       0          3        30  0.09090909</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">pred.rf.tune</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">model.rf.tune</span><span class="p">,</span><span class="n">testset</span><span class="p">[,</span><span class="m">-5</span><span class="p">])</span><span class="w">
+</span><span class="n">tab</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">pred</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pred.rf.tune</span><span class="p">,</span><span class="w"> </span><span class="n">true</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">testset</span><span class="p">[,</span><span class="m">5</span><span class="p">])</span><span class="w">
+</span><span class="n">tab</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##             true
+## pred         setosa versicolor virginica
+##   setosa         11          0         0
+##   versicolor      0          9         2
+##   virginica       0          0        15</code></pre></figure>
+
+<h2 id="neural-network">Neural Network</h2>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">library</span><span class="p">(</span><span class="n">caret</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">nnet</span><span class="p">)</span><span class="w">
+</span><span class="n">model</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">train</span><span class="p">(</span><span class="n">Species</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">trainset</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="o">=</span><span class="s1">'nnet'</span><span class="p">,</span><span class="w"> </span><span class="n">trace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w"> </span><span class="c1"># train</span><span class="w">
+</span><span class="c1"># we also add parameter 'preProc = c("center", "scale"))' at train() for centering and scaling the data</span><span class="w">
+</span><span class="n">model</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## Neural Network 
+## 
+## 113 samples
+##   4 predictor
+##   3 classes: 'setosa', 'versicolor', 'virginica' 
+## 
+## No pre-processing
+## Resampling: Bootstrapped (25 reps) 
+## Summary of sample sizes: 113, 113, 113, 113, 113, 113, ... 
+## Resampling results across tuning parameters:
+## 
+##   size  decay  Accuracy   Kappa      Accuracy SD  Kappa SD  
+##   1     0e+00  0.8049272  0.6910480  0.16023075   0.26135095
+##   1     1e-04  0.8423737  0.7573686  0.19609549   0.29686460
+##   1     1e-01  0.9244082  0.8856883  0.04276652   0.06368417
+##   3     0e+00  0.8907742  0.8302890  0.10494926   0.16537702
+##   3     1e-04  0.9548395  0.9311542  0.03295088   0.04937277
+##   3     1e-01  0.9568830  0.9342232  0.02642218   0.03999543
+##   5     0e+00  0.9343500  0.9005662  0.06765619   0.10017960
+##   5     1e-04  0.9511903  0.9256171  0.03516218   0.05280885
+##   5     1e-01  0.9568830  0.9342232  0.02642218   0.03999543
+## 
+## Accuracy was used to select the optimal model using  the largest value.
+## The final values used for the model were size = 3 and decay = 0.1.</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">prediction</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">testset</span><span class="p">[</span><span class="m">-5</span><span class="p">])</span><span class="w">                           </span><span class="c1"># predict</span><span class="w">
+</span><span class="n">tab</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span><span class="w"> </span><span class="n">testset</span><span class="p">[,</span><span class="m">5</span><span class="p">])</span><span class="w">                                  </span><span class="c1"># compare</span><span class="w">
+</span><span class="n">tab</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##             
+## prediction   setosa versicolor virginica
+##   setosa         11          0         0
+##   versicolor      0          9         1
+##   virginica       0          0        16</code></pre></figure>
+
+<p>Tuning the nnet for parameter size. Train function from caret package is a good starting point for this</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">my.grid</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">expand.grid</span><span class="p">(</span><span class="n">.decay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="m">0.1</span><span class="p">),</span><span class="w"> </span><span class="n">.size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="m">3</span><span class="p">,</span><span class="m">4</span><span class="p">,</span><span class="m">5</span><span class="p">))</span><span class="w">
+</span><span class="n">model.nnet.tune</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">train</span><span class="p">(</span><span class="n">Species</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">trainset</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="o">=</span><span class="s1">'nnet'</span><span class="p">,</span><span class="n">maxit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1000</span><span class="p">,</span><span class="w"> </span><span class="n">tuneGrid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my.grid</span><span class="p">,</span><span class="w"> </span><span class="n">trace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">)</span><span class="w"> 
+</span><span class="n">model.nnet.tune</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## Neural Network 
+## 
+## 113 samples
+##   4 predictor
+##   3 classes: 'setosa', 'versicolor', 'virginica' 
+## 
+## No pre-processing
+## Resampling: Bootstrapped (25 reps) 
+## Summary of sample sizes: 113, 113, 113, 113, 113, 113, ... 
+## Resampling results across tuning parameters:
+## 
+##   decay  size  Accuracy   Kappa      Accuracy SD  Kappa SD  
+##   0.1    2     0.9596507  0.9386234  0.03293291   0.05011685
+##   0.1    3     0.9587417  0.9371725  0.03207521   0.04877295
+##   0.1    4     0.9597173  0.9386446  0.03296815   0.05012780
+##   0.1    5     0.9597173  0.9386446  0.03296815   0.05012780
+##   0.5    2     0.9465429  0.9189847  0.04205641   0.06292420
+##   0.5    3     0.9479592  0.9212251  0.04220599   0.06335961
+##   0.5    4     0.9507754  0.9254962  0.03779758   0.05668289
+##   0.5    5     0.9496569  0.9236362  0.03818369   0.05755772
+## 
+## Accuracy was used to select the optimal model using  the largest value.
+## The final values used for the model were size = 4 and decay = 0.1.</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">prediction</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">model.nnet.tune</span><span class="p">,</span><span class="w"> </span><span class="n">testset</span><span class="p">[</span><span class="m">-5</span><span class="p">])</span><span class="w">                    </span><span class="c1"># predict</span><span class="w">
+</span><span class="n">tab</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span><span class="w"> </span><span class="n">testset</span><span class="p">[,</span><span class="m">5</span><span class="p">])</span><span class="w">                                  </span><span class="c1"># compare</span><span class="w">
+</span><span class="n">tab</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##             
+## prediction   setosa versicolor virginica
+##   setosa         11          0         0
+##   versicolor      0          9         1
+##   virginica       0          0        16</code></pre></figure>
+
+<h2 id="generalised-boosted-models">Generalised Boosted Models</h2>
+<p>This is available as the method gbm in caret package</p>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">fitControl</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">trainControl</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"repeatedcv"</span><span class="p">,</span><span class="w">
+                           </span><span class="n">number</span><span class="o">=</span><span class="m">5</span><span class="p">,</span><span class="w">
+                           </span><span class="n">repeats</span><span class="o">=</span><span class="m">1</span><span class="p">,</span><span class="w">
+                           </span><span class="n">verboseIter</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span><span class="n">set.seed</span><span class="p">(</span><span class="m">25</span><span class="p">)</span><span class="w">
+</span><span class="n">model.gbm</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">train</span><span class="p">(</span><span class="n">Species</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="o">=</span><span class="n">iris</span><span class="p">,</span><span class="w">
+                </span><span class="n">method</span><span class="o">=</span><span class="s2">"gbm"</span><span class="p">,</span><span class="w">
+                </span><span class="n">trControl</span><span class="o">=</span><span class="n">fitControl</span><span class="p">,</span><span class="w">
+                </span><span class="n">verbose</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## + Fold1.Rep1: shrinkage=0.1, interaction.depth=1, n.minobsinnode=10, n.trees=150 
+## - Fold1.Rep1: shrinkage=0.1, interaction.depth=1, n.minobsinnode=10, n.trees=150 
+## + Fold1.Rep1: shrinkage=0.1, interaction.depth=2, n.minobsinnode=10, n.trees=150 
+## - Fold1.Rep1: shrinkage=0.1, interaction.depth=2, n.minobsinnode=10, n.trees=150 
+## + Fold1.Rep1: shrinkage=0.1, interaction.depth=3, n.minobsinnode=10, n.trees=150 
+## - Fold1.Rep1: shrinkage=0.1, interaction.depth=3, n.minobsinnode=10, n.trees=150 
+## + Fold2.Rep1: shrinkage=0.1, interaction.depth=1, n.minobsinnode=10, n.trees=150 
+## - Fold2.Rep1: shrinkage=0.1, interaction.depth=1, n.minobsinnode=10, n.trees=150 
+## + Fold2.Rep1: shrinkage=0.1, interaction.depth=2, n.minobsinnode=10, n.trees=150 
+## - Fold2.Rep1: shrinkage=0.1, interaction.depth=2, n.minobsinnode=10, n.trees=150 
+## + Fold2.Rep1: shrinkage=0.1, interaction.depth=3, n.minobsinnode=10, n.trees=150 
+## - Fold2.Rep1: shrinkage=0.1, interaction.depth=3, n.minobsinnode=10, n.trees=150 
+## + Fold3.Rep1: shrinkage=0.1, interaction.depth=1, n.minobsinnode=10, n.trees=150 
+## - Fold3.Rep1: shrinkage=0.1, interaction.depth=1, n.minobsinnode=10, n.trees=150 
+## + Fold3.Rep1: shrinkage=0.1, interaction.depth=2, n.minobsinnode=10, n.trees=150 
+## - Fold3.Rep1: shrinkage=0.1, interaction.depth=2, n.minobsinnode=10, n.trees=150 
+## + Fold3.Rep1: shrinkage=0.1, interaction.depth=3, n.minobsinnode=10, n.trees=150 
+## - Fold3.Rep1: shrinkage=0.1, interaction.depth=3, n.minobsinnode=10, n.trees=150 
+## + Fold4.Rep1: shrinkage=0.1, interaction.depth=1, n.minobsinnode=10, n.trees=150 
+## - Fold4.Rep1: shrinkage=0.1, interaction.depth=1, n.minobsinnode=10, n.trees=150 
+## + Fold4.Rep1: shrinkage=0.1, interaction.depth=2, n.minobsinnode=10, n.trees=150 
+## - Fold4.Rep1: shrinkage=0.1, interaction.depth=2, n.minobsinnode=10, n.trees=150 
+## + Fold4.Rep1: shrinkage=0.1, interaction.depth=3, n.minobsinnode=10, n.trees=150 
+## - Fold4.Rep1: shrinkage=0.1, interaction.depth=3, n.minobsinnode=10, n.trees=150 
+## + Fold5.Rep1: shrinkage=0.1, interaction.depth=1, n.minobsinnode=10, n.trees=150 
+## - Fold5.Rep1: shrinkage=0.1, interaction.depth=1, n.minobsinnode=10, n.trees=150 
+## + Fold5.Rep1: shrinkage=0.1, interaction.depth=2, n.minobsinnode=10, n.trees=150 
+## - Fold5.Rep1: shrinkage=0.1, interaction.depth=2, n.minobsinnode=10, n.trees=150 
+## + Fold5.Rep1: shrinkage=0.1, interaction.depth=3, n.minobsinnode=10, n.trees=150 
+## - Fold5.Rep1: shrinkage=0.1, interaction.depth=3, n.minobsinnode=10, n.trees=150 
+## Aggregating results
+## Selecting tuning parameters
+## Fitting n.trees = 50, interaction.depth = 3, shrinkage = 0.1, n.minobsinnode = 10 on full training set</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">model.gbm</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## Stochastic Gradient Boosting 
+## 
+## 150 samples
+##   4 predictor
+##   3 classes: 'setosa', 'versicolor', 'virginica' 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (5 fold, repeated 1 times) 
+## Summary of sample sizes: 120, 120, 120, 120, 120 
+## Resampling results across tuning parameters:
+## 
+##   interaction.depth  n.trees  Accuracy   Kappa  Accuracy SD  Kappa SD  
+##   1                   50      0.9533333  0.93   0.05055250   0.07582875
+##   1                  100      0.9533333  0.93   0.03800585   0.05700877
+##   1                  150      0.9533333  0.93   0.03800585   0.05700877
+##   2                   50      0.9400000  0.91   0.04944132   0.07416198
+##   2                  100      0.9533333  0.93   0.03800585   0.05700877
+##   2                  150      0.9400000  0.91   0.04944132   0.07416198
+##   3                   50      0.9666667  0.95   0.02357023   0.03535534
+##   3                  100      0.9600000  0.94   0.02788867   0.04183300
+##   3                  150      0.9533333  0.93   0.02981424   0.04472136
+## 
+## Tuning parameter 'shrinkage' was held constant at a value of 0.1
+## 
+## Tuning parameter 'n.minobsinnode' was held constant at a value of 10
+## Accuracy was used to select the optimal model using  the largest value.
+## The final values used for the model were n.trees = 50, interaction.depth
+##  = 3, shrinkage = 0.1 and n.minobsinnode = 10.</code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><span class="n">prediction</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">model.gbm</span><span class="p">,</span><span class="w"> </span><span class="n">testset</span><span class="p">[</span><span class="m">-5</span><span class="p">])</span><span class="w"> 
+</span><span class="n">tab</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">table</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span><span class="w"> </span><span class="n">testset</span><span class="p">[,</span><span class="m">5</span><span class="p">])</span><span class="w">
+</span><span class="n">tab</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##             
+## prediction   setosa versicolor virginica
+##   setosa         11          0         0
+##   versicolor      0          9         0
+##   virginica       0          0        17</code></pre></figure>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Hadoop data import/export with Sqoop</title>
+  <meta name="description" content="Apache Sqoop is an open source tool that allows to extract data from a structured data store into Hadoop for further processing. In addition to writing the c...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2015/08/20/hadoop-data-import-export-with-sqoop.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Hadoop data import/export with Sqoop</h1>
+    <p class="post-meta">
+	<time datetime="2015-08-20T00:00:00+08:00" itemprop="datePublished">Aug 20, 2015
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/hadoop/" >hadoop</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/bigdata/" >bigdata</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>Apache Sqoop is an open source tool that allows to extract data from a structured data store into Hadoop for further processing. In addition to writing the contents of the database table to HDFS, Sqoop also provides you with a generated Java source file (widgets.java) written to the current local directory. Sqoop is a client command and there is no daemon process for it. It depends on HDFS and YARN and database drivers to which it connects.</p>
+
+<h3 id="output-formats">Output Formats</h3>
+<p>By default, Sqoop will generate csv  files for the imported data. It can also write the data as SequenceFiles, Avro datafiles or Parquet files. These binary formats allow data to be compressed while retaining MapReduce’s ability to process different sections of the same file in parallel.</p>
+
+<h3 id="splitting-columns">Splitting columns</h3>
+<p>Using metadata about the table, Sqoop will guess a good column to use for splitting the table (typically the primary key for the table, if one exists). The minimum and maximum values for the primary key column are retrieved, and then these are used in conjunction with a target number of tasks to determine the queries that each map task should issue</p>
+
+<p>Eg if table is 100,000 rows and with -m 5, then there would be 5 map-reduce task and each map-reduce task will run a part of query in range : say 10K to 20K etc</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># check if you can connect to mysql with sqoop (using the provided jdbc driver)</span>
+sqoop list-databases <span class="nt">--connect</span> “jdbc://quickstart.cloudera:3306” <span class="nt">--username</span> retail_dba <span class="nt">--password</span> cloudera
+
+<span class="c"># list the tables in database</span>
+sqoop list-tables <span class="nt">--connect</span> “jdbc://quickstart.cloudera:3306/retail_db” <span class="nt">--username</span> retail_dba <span class="nt">--password</span> cloudera
+
+
+<span class="c"># import all tables</span>
+Sqoop import-all-tables <span class="nt">-m</span> 12  <span class="nt">--connect</span> “jdbc://quickstart.cloudera:3306/retail_db” <span class="nt">--username</span> retail_dba <span class="nt">--password</span> cloudera  <span class="nt">--warehouse-dir</span><span class="o">=</span>/user/cloudera/imported_data</code></pre></figure>
+
+<p>-m means 12 mappers. This means that there are 12 threads active on a single table. All the tables are imported in sequential manner one after the other. It is just a suggestion to hadoop and while during operation hadoop will decide the number of threads to use based on the size of the data, block size etc. If in the output you see files like part-001 to part–006 it means that it has used only 6 threads. By default the number of mappers is 4
+If the database there is primary index with min value of 1 and max value of 12, then since there are 12 mappers, sqoop will break the data in 12 parts and issues 12 different queries . One in each thread. Eg: min 1, max 2 , min 2 and max 3 etc. Each of these will be given to each of the mappers to process.</p>
+
+<p>The mappers count is decided based on the volume of the data and nodes available.
+References:</p>
+
+<ul>
+  <li><a href="https://wiki.apache.org/hadoop/HowManyMapsAndReduces">How many maps and reduces</a></li>
+  <li><a href="http://stackoverflow.com/questions/20307404/hadoop-number-of-mappers-and-reducers">Hadoop number of mappers and reducers</a></li>
+  <li><a href="https://www.quora.com/What-are-good-ways-to-decide-number-of-reducers">Good way to decide number of mappers and reducers</a></li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># use the eval command to run the select, insert etc</span>
+sqoop  <span class="nb">eval</span> <span class="nt">--connect</span> “jdbc://quickstart.cloudera:3306/retail_db” <span class="nt">--username</span> retail_dba <span class="nt">--password</span> cloudera 
+<span class="nt">--query</span> “select <span class="k">*</span> from departments”</code></pre></figure>
+
+<h3 id="importing-data-to-hive">Importing data to hive</h3>
+<p>Using scoop we can import data to Hive so that we can run SQL queries with a bigger dataset over a cluster.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># start the hive shell</span>
+create database sqoop_import
+dfs <span class="nt">-ls</span> /user/hive/warehouse
+show databases
+
+<span class="c"># create the hive table </span>
+sqoop import-all-tables <span class="se">\</span>
+  <span class="nt">--num-mappers</span> 1 <span class="se">\</span>
+  <span class="nt">--connect</span> <span class="s2">"jdbc:mysql://quickstart.cloudera:3306/retail_db"</span> <span class="se">\</span>
+  <span class="nt">--username</span><span class="o">=</span>retail_dba <span class="se">\</span>
+  <span class="nt">--password</span><span class="o">=</span>cloudera <span class="se">\</span>
+  <span class="nt">--hive-import</span> <span class="se">\</span>
+  <span class="nt">--hive-overwrite</span> <span class="se">\</span>
+  <span class="nt">--create-hive-table</span> <span class="se">\</span>
+  <span class="nt">--compress</span> <span class="se">\</span>
+  <span class="nt">--compression-codec</span> org.apache.hadoop.io.compress.SnappyCodec <span class="se">\</span>
+  <span class="nt">--outdir</span> java_files
+
+<span class="c"># check out the new folders created</span>
+<span class="o">&gt;</span> show tables
+
+<span class="c"># validate the count of rows imported</span>
+<span class="k">select </span>count<span class="o">(</span>1<span class="o">)</span> from order_items<span class="p">;</span>
+sqoop <span class="nb">eval</span> <span class="nt">--connect</span> “jdbc:mysql://quickstart.cloudera:3306/retail_db” <span class="nt">--username</span> cloudera <span class="nt">--password</span> cloudera <span class="nt">--query</span> “select count<span class="o">(</span>1<span class="o">)</span> from order_items”
+
+
+<span class="c"># run queries</span>
+<span class="k">select</span> <span class="k">*</span> from departments</code></pre></figure>
+
+<h3 id="using-boundary-query-and-columns">Using Boundary Query and columns</h3>
+<p>The –boundary-query allow you more control while importing data in parallel. Boundary Query lets you specify an optimized query to get the max, min  else it will try to find the min and max on the query statement and when there are millions of rows this may take a while and slow it down.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sqoop import <span class="se">\</span>
+  <span class="nt">--connect</span> <span class="s2">"jdbc:mysql://quickstart.cloudera:3306/retail_db"</span> <span class="se">\</span>
+  <span class="nt">--username</span><span class="o">=</span>retail_dba <span class="se">\</span>
+  <span class="nt">--password</span><span class="o">=</span>cloudera <span class="se">\</span>
+  <span class="nt">--table</span> departments <span class="se">\</span>
+  <span class="nt">--target-dir</span> /user/cloudera/departments <span class="se">\</span>
+  <span class="nt">-m</span> 2 <span class="se">\</span>
+  <span class="nt">--boundary-query</span> <span class="s2">"select 2, 8 from departments limit 1"</span> <span class="se">\</span>
+  <span class="nt">--columns</span> department_id,department_name</code></pre></figure>
+
+<h3 id="using--split-by">Using -split-by</h3>
+
+<p>By default during table import the primary key column is used to split and distribute the values from table across the mappers uniformly. However in case of doing a more advanced query, you’ll need to specify the column to do the parallel split.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sqoop import <span class="se">\</span>
+  <span class="nt">--connect</span> <span class="s2">"jdbc:mysql://quickstart.cloudera:3306/retail_db"</span> <span class="se">\</span>
+  <span class="nt">--username</span><span class="o">=</span>retail_dba <span class="se">\</span>
+  <span class="nt">--password</span><span class="o">=</span>cloudera <span class="se">\</span>
+  <span class="nt">--query</span><span class="o">=</span><span class="s2">"select * from orders join order_items on orders.order_id = order_items.order_item_order_id where </span><span class="se">\$</span><span class="s2">CONDITIONS"</span> <span class="se">\</span>
+  <span class="nt">--target-dir</span> /user/cloudera/order_join <span class="se">\</span>
+  <span class="nt">--split-by</span> order_id <span class="se">\</span>
+  <span class="nt">--num-mappers</span> 4</code></pre></figure>
+
+<h3 id="export">Export</h3>
+<p>While calculating number of mappers for scoop exports, the number of blocks in which files is divided is used as the criteria. There is no difference in importing from hdfs and hive directories. Same commands are use.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sqoop <span class="nb">export</span> <span class="nt">--connect</span> <span class="s2">"jdbc:mysql://quickstart.cloudera:3306/retail_db"</span> <span class="se">\</span>
+  <span class="nt">--username</span> retail_dba <span class="se">\</span>
+  <span class="nt">--password</span> cloudera <span class="se">\</span>
+  <span class="nt">--table</span> departments_test <span class="se">\</span>
+  <span class="nt">--export-dir</span> /user/hive/warehouse/departments_test <span class="se">\</span>
+  <span class="nt">--input-fields-terminated-by</span> <span class="s1">'\001'</span> <span class="se">\</span>
+  <span class="nt">--input-lines-terminated-by</span> <span class="s1">'\n'</span> <span class="se">\</span>
+  <span class="nt">--num-mappers</span> 2 <span class="se">\</span>
+  <span class="nt">--batch</span> <span class="se">\</span>
+  <span class="nt">--outdir</span> java_files <span class="se">\</span>
+  <span class="nt">--input-null-string</span> nvl <span class="se">\</span>
+  <span class="nt">--input-null-non-string</span> <span class="nt">-1</span></code></pre></figure>
+
+<p>input-null-non-string : specify what int value can be stored as null . In the query above its -1
+Input-null-string :  specify what value in file should be stored as null . In the query above its nvl</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

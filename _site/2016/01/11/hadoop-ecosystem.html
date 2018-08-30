@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Hadoop Ecosystem</title>
+  <meta name="description" content="Hadoop Installation on Mac">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2016/01/11/hadoop-ecosystem.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Hadoop Ecosystem</h1>
+    <p class="post-meta">
+	<time datetime="2016-01-11T00:00:00+08:00" itemprop="datePublished">Jan 11, 2016
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/hadoop/" >hadoop</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/bigdata/" >bigdata</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h3 id="hadoop-installation-on-mac">Hadoop Installation on Mac</h3>
+
+<h4 id="installation">Installation</h4>
+<p>Download the latest version of hadoop binaries and extract it in local folder</p>
+
+<p>On Mac you can also install with the brew command</p>
+<blockquote>
+  <p>brew install hadoop
+(The current version at writing was 2.7.3)
+This  installs hadoop at /usr/local/Cellar/hadoop/2.7.3</p>
+</blockquote>
+
+<p>The current JDK version was 1.8 and the java home was set up as /Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home
+It is a good practice to set this up in .bashrc so that it could be picked up all your JVM based apps</p>
+
+<h4 id="configuration">Configuration</h4>
+
+<p>Edit hadoop-env.sh</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;</span> vim etc/hadoop/hadoop-env.sh
+The JAVA_HOME should be <span class="nb">set </span>as below <span class="k">in </span>file
+<span class="nb">export </span><span class="nv">JAVA_HOME</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>/usr/libexec/java_home<span class="k">)</span><span class="s2">"</span></code></pre></figure>
+
+<p>SSH
+Mac: Enable Remote Login in System Preference -&gt; Sharing.</p>
+
+<p>ssh and check that you can ssh to the localhost without a passphrase:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>ssh localhost
+If you cannot ssh to localhost without a passphrase, execute the following commands:
+
+<span class="nv">$ </span>ssh-keygen <span class="nt">-t</span> dsa <span class="nt">-P</span> <span class="s1">''</span> <span class="nt">-f</span> ~/.ssh/id_dsa
+<span class="nv">$ </span><span class="nb">cat</span> ~/.ssh/id_dsa.pub <span class="o">&gt;&gt;</span> ~/.ssh/authorized_keys</code></pre></figure>
+
+<p>Edit following config files in your Hadoop directory</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">1<span class="o">)</span> etc/hadoop/core-site.xml:
+
+&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;fs.defaultFS&lt;/name&gt;
+        &lt;value&gt;hdfs://localhost:9000&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+2<span class="o">)</span> etc/hadoop/hdfs-site.xml:
+
+&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;dfs.replication&lt;/name&gt;
+        &lt;value&gt;1&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+3<span class="o">)</span> etc/hadoop/mapred-site.xml:
+
+&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;mapreduce.framework.name&lt;/name&gt;
+        &lt;value&gt;yarn&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+4<span class="o">)</span> etc/hadoop/yarn-site.xml:
+
+&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;yarn.nodemanager.aux-services&lt;/name&gt;
+        &lt;value&gt;mapreduce_shuffle&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;</code></pre></figure>
+
+<h4 id="execution">Execution</h4>
+<p>Format and start HDFS and YARN</p>
+<blockquote>
+  <p>hdfs namenode -format
+start-dfs.sh</p>
+</blockquote>
+
+<p>Now you can browse the web interface for the NameNode at - http://localhost:50070/</p>
+
+<p>Make the HDFS directories required to execute MapReduce jobs:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;</span> hdfs dfs <span class="nt">-mkdir</span> /user
+<span class="o">&gt;</span> hdfs dfs <span class="nt">-mkdir</span> /user/<span class="o">{</span>username<span class="o">}</span> <span class="c">#make sure you add correct username here</span></code></pre></figure>
+
+<h4 id="start-resourcemanager-daemon-and-nodemanager-daemon">Start ResourceManager daemon and NodeManager daemon:</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;</span> start-yarn.sh</code></pre></figure>
+
+<h4 id="browse-the-web-interface-for-the-resourcemanager-at---httplocalhost8088">Browse the web interface for the ResourceManager at - http://localhost:8088/</h4>
+
+<p>Test examples code that came with the hadoop version</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;</span> bin/hdfs dfs <span class="nt">-mkdir</span> /input
+<span class="o">&gt;</span> bin/hdfs dfs <span class="nt">-put</span> libexec/etc/hadoop /input
+
+<span class="o">&gt;</span> hadoop jar libexec/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar <span class="nb">grep</span> /input/<span class="k">*</span> /output <span class="s1">'dfs[a-z.]+'</span></code></pre></figure>
+
+<h4 id="examine-the-output-files">Examine the output files:</h4>
+
+<p>Copy the output files from the distributed filesystem to the local filesystem and examine them:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;</span> hdfs dfs <span class="nt">-get</span> /output ./output
+<span class="o">&gt;</span> vim ./output/part-r-00000</code></pre></figure>
+
+<h4 id="submit-a-yarn-job">submit a yarn job</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">&gt;</span> yarn jar libexec/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar pi 6 1000</code></pre></figure>
+
+<p>When you’re done, stop the daemons with:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>stop-yarn.sh
+<span class="nv">$ </span>stop-dfs.sh</code></pre></figure>
+
+<p>Reference: http://zhongyaonan.com/hadoop-tutorial/setting-up-hadoop-2-6-on-mac-osx-yosemite.html</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

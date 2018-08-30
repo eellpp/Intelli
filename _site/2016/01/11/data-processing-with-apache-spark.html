@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Data Processing With Apache Spark</title>
+  <meta name="description" content="Spark is a big data processing framework which enables fast and advanced analytics computation over hadoop clusters.">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2016/01/11/data-processing-with-apache-spark.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Data Processing With Apache Spark</h1>
+    <p class="post-meta">
+	<time datetime="2016-01-11T00:00:00+08:00" itemprop="datePublished">Jan 11, 2016
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/bigdata/" >bigdata</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/analytics/" >analytics</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>Spark is a big data processing framework which enables fast and advanced analytics computation over hadoop clusters.</p>
+
+<h2 id="spark--architecture">Spark  Architecture</h2>
+<p>A Spark application consists of: a driver program and a list of executors.</p>
+
+<p>The driver program uses the SparkContext object to coordinate the running of the Spark applications run as independent sets of processes on a cluster</p>
+
+<p>The SparkContext can connect to several types of cluster managers</p>
+
+<ul>
+  <li>Standalone cluster manager</li>
+  <li>Mesos</li>
+  <li>YARN</li>
+</ul>
+
+<p>These cluster managers allocate resources across applications. 
+Once connected to the cluster managers,</p>
+
+<h4 id="spark-application-execution-steps">Spark Application Execution Steps</h4>
+
+<ol>
+  <li>
+    <p>The Spark driver is launched to invoke the main method of the Spark application.</p>
+  </li>
+  <li>
+    <p>The driver asks the cluster manager for resources to run the application, i.e. to launch executors that run tasks.</p>
+  </li>
+  <li>
+    <p>The cluster manager launches executors.</p>
+  </li>
+  <li>
+    <p>SparkContext acquires executors on nodes in the cluster, which are processes that run computations and store data for your application.</p>
+  </li>
+  <li>
+    <p>SparkContext sends your application code (defined by JAR or Python files passed to SparkContext) to the executors.</p>
+  </li>
+  <li>
+    <p>SparkContext sends tasks to the executors to run.</p>
+  </li>
+  <li>
+    <p>Once SparkContext.stop() is executed from the driver or the main method has exited, all the executors are terminated and the cluster resources are released by the cluster manager.</p>
+  </li>
+</ol>
+
+<p><img src="http://localhost:4000/assets/spark_cluster.png" alt="sparkcluster" style="width: 400px;" /></p>
+
+<p>Reference: <a href="http://spark.apache.org/docs/latest/cluster-overview.html">http://spark.apache.org/docs/latest/cluster-overview.html</a></p>
+
+<h3 id="standalone-cluster-manager">Standalone Cluster Manager</h3>
+
+<p>Spark provides a simple standalone mode where spark manages the cluster without an external cluster manager. Each node should have the spark binary installed. In the standalone mode we can manually deploy the spark master and workers.</p>
+
+<p>First we can start the master</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">./sbin/start-master.sh</code></pre></figure>
+
+<p>The master web UI can seen at  http://localhost:8080 by default. We can connect each of workers to this master by specifying the master address</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">./bin/spark-class org.apache.spark.deploy.worker.Worker spark://IP:PORT</code></pre></figure>
+
+<p>We can also launch the spark standalone cluster with a launch script by specifying the hostnames of all the Spark worker machines in the conf/slaves file in Spark directory</p>
+
+<p>To further configure the spark cluster edit conf/spark-env.sh</p>
+
+<ul>
+  <li>Set the SPARK_WORKER_INSTANCES which determines the number of Worker instances (#Executors) per node (its default value is only 1)</li>
+  <li>Set the SPARK_WORKER_CORES # number of cores that one Worker can use</li>
+  <li>Set SPARK_WORKER_MEMORY  # total amount of memory that can be used on one machine (Worker Node) for running Spark programs.</li>
+</ul>
+
+<p>Copy this configuration file to all Worker Nodes, on the same folder and start the cluster by running sbin/start-all.sh</p>
+
+<p>Various details to configure the master and slaves are documented quite well at the doc
+<a href="https://spark.apache.org/docs/1.2.1/spark-standalone.html">https://spark.apache.org/docs/1.2.1/spark-standalone.html</a></p>
+
+<h3 id="yarn-cluster-manager">Yarn Cluster Manager</h3>
+
+<p><img src="http://localhost:4000/assets/yarnflow.png" alt="yarnflow" style="width: 450px;" /></p>
+
+<p>Reference: <a href="http://hortonworks.com/blog/apache-hadoop-yarn-concepts-and-applications/">http://hortonworks.com/blog/apache-hadoop-yarn-concepts-and-applications/</a></p>
+
+<p>There are two deploy modes that can be used to launch Spark applications on YARN.</p>
+
+<ul>
+  <li>Cluster Mode</li>
+  <li>Client Mode</li>
+</ul>
+
+<h4 id="yarn-cluster-mode">YARN Cluster Mode</h4>
+
+<p>In cluster mode, the Spark driver runs inside an application master process.The application master itself runs on one of the node managers in the cluster which is managed by YARN on the cluster. The client can go away after initiating the application.</p>
+
+<p>While running the application in cluster mode, the driver runs on a different machine than the client, so SparkContext.addJar won’t work out of the box with files that are local to the client. To make files on the client available to SparkContext.addJar, include them with the –jars option in the launch command.</p>
+
+<h4 id="yarn-client-mode">YARN Client Mode</h4>
+<p>In this mode the driver program is running on the yarn client where we input the command to submit the spark application. It may not be a machine in the yarn cluster. In this mode, although the drive program is running on the yarn client machine, the tasks are executed on the executors in the node managers of the YARN cluster and the application master is only used for requesting resources from YARN.</p>
+
+<h4 id="which-mode-to-use">Which mode to use</h4>
+
+<p>While deciding which mode to use one the factors to consider is the latency between the drivers and executors. 
+If you are submitting the client application from your laptop and the network latency to worker nodes from your laptop is not high, then you can use the client mode. Else use the cluster mode so that drivers and workers and in co-located space to reduce the latency.
+Instead of submitting applications from your local machine, it is also a good idea to submit it from a gateway machine that is colocated with the worker nodes.</p>
+
+<p>When the –master parameter is yarn, the ResourceManager’s address is picked up from the Hadoop configuration. Later in the configuration setup the location of these hadoop configuration files need to be provided.</p>
+
+<h4 id="default-ports">Default Ports</h4>
+
+<p>Spark Standalone master UI : 8080</p>
+
+<p>SparkContext web UI: 4040</p>
+
+<p>Spark History Server: 18080</p>
+
+<p>HDFS Namenode: 50070</p>
+
+<p>Yarn Resource manager :8088</p>
+
+<h4 id="spark-history-server">Spark History Server</h4>
+
+<p>The Spark History Server displays information about the history of completed Spark applications. It provides application history from event logs stored in the file system. It periodically checks in the background for applications that have finished and renders a UI to show the history of applications by parsing the associated event logs.</p>
+
+<p>You can start the history server by executing:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">./sbin/start-history-server.sh</code></pre></figure>
+
+<p>The Web interface for the spark history server is at port 18080</p>
+
+<p>Various other options are there to configure the history server in managing logs. Example 
+spark.history.fs.cleaner.maxAge can be set to 7d to retain only last 7 days logs etc</p>
+
+<p>Ref: <a href="http://spark.apache.org/docs/latest/monitoring.html">http://spark.apache.org/docs/latest/monitoring.html</a></p>
+
+<h4 id="spark-infrastructure">Spark Infrastructure</h4>
+
+<p>One of the main advantage of Spark is much faster data processing as compared to Hadoop. Spark does its processing in memory so to leverage on this we should add more RAM and CPU to the spark infrastructure. The typical recommendation are</p>
+
+<ul>
+  <li>4-8 disks per node, where each disk is 1-2 TB</li>
+  <li>8-16 cores per node</li>
+  <li>32 GB or more memory each node. 75% of this for Spark and rest for OS and other applications</li>
+</ul>
+
+<p>While development you can also determine how much memory is used for a certain dataset size. Load part of your dataset in a Spark RDD and use the Storage tab of Spark’s monitoring UI (<a href="http://&lt;driver-node:4040">http://&lt;driver-node:4040</a>) to see its size in memory.</p>
+
+<h2 id="spark-installation">Spark Installation</h2>
+
+<p>While installing spark the objective here is to get it running in standalone mode and over yarn client. This is a development cluster used for local testing.</p>
+
+<p>My current stack on mac is the following</p>
+
+<p>Jdk1.8 , scala 2.11, hadoop 2.7.1</p>
+
+<h4 id="download">Download</h4>
+
+<p>http://spark.apache.org/downloads.html</p>
+
+<p>Current version of spark is 1.6.1</p>
+
+<h4 id="build">Build</h4>
+
+<p>Running Spark on YARN requires a Spark build which is built with YARN support.</p>
+
+<p>Binary distributions can be downloaded from the downloads page of the project website or you can build it yourself.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">build/sbt <span class="nt">-Pyarn</span> <span class="nt">-Phadoop-2</span>.x assembly</code></pre></figure>
+
+<p>The various options for compiling spark are described here</p>
+
+<p><a href="https://spark.apache.org/docs/latest/building-spark.html">https://spark.apache.org/docs/latest/building-spark.html</a></p>
+
+<p><a href="http://spark.apache.org/downloads.html">http://spark.apache.org/downloads.html</a></p>
+
+<h4 id="configuration">Configuration</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">cp conf/spark-env.sh.template conf/spark-env.sh
+conf/spark-env.sh</code></pre></figure>
+
+<h4 id="edit-the-conf-file-with-following-content">Edit the conf file with following content</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Have to add hadoop conf so as to let spark know about hadoop or yarn configuration files.</span>
+<span class="c"># This would be required when connecting spark with yarn</span>
+<span class="nb">export </span><span class="nv">HADOOP_CONF_DIR</span><span class="o">=</span><span class="k">${</span><span class="nv">HADOOP_CONF_DIR</span><span class="k">:-</span><span class="s2">"/etc/hadoop"</span><span class="k">}</span>
+<span class="nb">export </span><span class="nv">SPARK_MASTER_IP</span><span class="o">=</span>localhost 
+<span class="nb">export </span><span class="nv">SPARK_WORKER_CORES</span><span class="o">=</span>1
+<span class="nb">export </span><span class="nv">SPARK_WORKER_MEMORY</span><span class="o">=</span>800m
+<span class="nb">export </span><span class="nv">SPARK_WORKER_INSTANCES</span><span class="o">=</span>1
+
+<span class="c"># create the path to logs file</span>
+mkdir &lt;PATH TO LOGS FOLDER&gt;/logs
+
+cp slaves.template slaves
+<span class="nb">sudo </span>cp conf/log4j.properties.template conf/log4j.properties
+
+<span class="c">#Edit the log4j.properties file with following content</span>
+<span class="c"># Initialize root logger</span>
+log4j.rootLogger<span class="o">=</span>INFO, FILE
+<span class="c"># Set everything to be logged to the console</span>
+log4j.rootCategory<span class="o">=</span>INFO, FILE
+<span class="c"># Ignore messages below warning level from Jetty, because it's a bit verbose</span>
+log4j.logger.org.eclipse.jetty<span class="o">=</span>WARN
+<span class="c"># Set the appender named FILE to be a File appender</span>
+log4j.appender.FILE<span class="o">=</span>org.apache.log4j.FileAppender
+<span class="c"># Change the path to where you want the log file to reside</span>
+log4j.appender.FILE.File<span class="o">=</span>&lt;PATH TO LOGS FOLDER&gt;/logs/SparkOut.log
+<span class="c"># Prettify output a bit</span>
+log4j.appender.FILE.layout<span class="o">=</span>org.apache.log4j.PatternLayout
+log4j.appender.FILE.layout.ConversionPattern<span class="o">=</span>%d<span class="o">{</span>yy/MM/dd HH:mm:ss<span class="o">}</span> %p %c<span class="o">{</span>1<span class="o">}</span>: %m%n</code></pre></figure>
+
+<h4 id="run-spark-shell-in-standalone-mode">Run Spark Shell in Standalone mode</h4>
+
+<p>bin/spark-shell</p>
+
+<h4 id="run-hdfs-from-hadoop-installation-folder">Run hdfs from hadoop installation folder</h4>
+
+<p>./sbin/start-dfs.sh</p>
+
+<p>namenode UI should be up at <a href="http://localhost:50070/dfshealth.html#tab-overview">http://localhost:50070/dfshealth.html#tab-overview</a></p>
+
+<h4 id="run-yarn--from-hadoop-installation-folder">run yarn  from hadoop installation folder</h4>
+
+<p>./sbin/start-yarn.sh</p>
+
+<p>Yarn Cluster manager UI should be up at http://localhost:8088/cluster</p>
+
+<p>bin/spark-shell –master yarn</p>
+
+<p>Spark jobs can be seen at http://localhost:4040/jobs/</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Calculate Pi</span>
+
+./bin/run-example org.apache.spark.examples.SparkPi 
+
+<span class="c"># Calculate Pi in cluster mode</span>
+bin/spark-submit <span class="nt">--class</span> org.apache.spark.examples.SparkPi <span class="nt">--master</span> yarn <span class="nt">--deploy-mode</span> cluster examples/target/scala-<span class="k">*</span>/spark-<span class="k">*</span>.jar 10
+
+<span class="c"># Calculate Pi in client mode</span>
+bin/spark-submit <span class="nt">--class</span> org.apache.spark.examples.SparkPi <span class="nt">--master</span> yarn <span class="nt">--deploy-mode</span> client examples/target/scala-<span class="k">*</span>/spark-<span class="k">*</span>.jar 10
+<span class="c">#The output will be sent to the console</span></code></pre></figure>
+
+<p>To view the output result “Pi is roughly 3.140784” while running in cluster mode, go to the Yarn Cluster manager UI (http://localhost:8088/cluster). Here you can see the Pi application marked as finished. Click on the Application ID and open the logs file stdout</p>
+
+<h4 id="mllib-correlations-example">MLlib Correlations example:</h4>
+
+<p>./bin/run-example org.apache.spark.examples.mllib.Correlations</p>
+
+<h4 id="mllib-linear-regression-example">MLlib Linear Regression example:</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">./bin/spark-submit <span class="nt">--master</span> yarn <span class="nt">--class</span> org.apache.spark.examples.mllib.LinearRegression examples/target/scala-<span class="k">*</span>/spark-<span class="k">*</span>.jar data/mllib/sample_linear_regression_data.txt  
+
+spark-submit over yarn client
+
+/spark-submit <span class="nt">--master</span> yarn <span class="nt">--class</span> org.apache.spark.examples.mllib.LinearRegression examples/target/scala-<span class="k">*</span>/spark-<span class="k">*</span>.jar data/mllib/sample_linear_regression_data.txt  </code></pre></figure>
+
+<h4 id="once-the-work-is-done-stop-the-cluster">Once the work is done, stop the cluster</h4>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#stop yarn from hadoop installation folder</span>
+sbin/stop-yarn.sh
+<span class="c">#stop dfs from hadoop installation folder</span>
+sbin/stop-dfs.sh</code></pre></figure>
+
+<p>Refer to the official doc for running jobs on Yarn</p>
+
+<p><a href="http://spark.apache.org/docs/latest/running-on-yarn.html">http://spark.apache.org/docs/latest/running-on-yarn.html</a></p>
+
+<p>Spark History Server</p>
+
+<h2 id="spark-programming">Spark Programming</h2>
+
+<p>In Spark the computations are expressed in terms of actions and transformations on RDD (Resilient Distributed Datasets). The RDD in turn is an immutable collection of objects. Each RDD is split into multiple partitions which may be computed on different nodes of the cluster. Operations over RDD are automatically parallelized over the cluster. The RDD’s can be persisted in memory which helps in creating a fast pipeline of operations without costly disk seeks.</p>
+
+<h4 id="driver">Driver</h4>
+<p>Every Spark application consists of a driver program that launches various parallel operations on a cluster. Driver programs access Spark through a SparkContext object, which represents a connection to a computing cluster. Once you have a SparkContext, you can use it to build RDDs Example : the call to sc.textFile creates an RDD.
+To run various operations on the RDD you can call functions on them. Example  the count operation. There are more than 80 high level functions that we can use to query the data.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">val lines <span class="o">=</span> sc.textFile<span class="o">(</span>“Example.txt”<span class="o">)</span>
+lines.count</code></pre></figure>
+
+<p>Once created, RDDs offer two types of operations: transformations and actions.</p>
+
+<ul>
+  <li>Transformations construct a new RDD from a previous one.</li>
+  <li>Actions, on the other hand, compute a result based on an RDD</li>
+</ul>
+
+<p>Spark computes RDD only in a lazy fashion—that is, the first time they are used in an action.
+RDD are recomputed each time you want to run an action on it. To persist an RDD you have to use the persist action. Persisting RDD on disk, instead of the memory is also possible.</p>
+
+<p>To Parallize a collection, or a dataset that is already in memory, you can  parallize() method. The elements of this collections are copied to an RDD and operated in parallel</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">val input <span class="o">=</span> sc.parallelize<span class="o">(</span>List<span class="o">(</span>1,2,3,4,5<span class="o">))</span></code></pre></figure>
+
+<p>Use the aggregate function to do parallel computation in different function and provide custom function to combine the results of computation from different threads</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># eg sum of the numbers</span>
+input.aggregate<span class="o">(</span> <span class="o">(</span>0,0<span class="o">))(</span>
+	<span class="o">(</span>x,y<span class="o">)</span> <span class="o">=&gt;</span> <span class="o">(</span> x._1 + y, x._2 + 1<span class="o">)</span>
+	<span class="o">(</span>x,y<span class="o">)</span> <span class="o">=&gt;</span> <span class="o">(</span> x._1 + y._1 , x._2 + y._2<span class="o">)</span>
+  <span class="o">)</span></code></pre></figure>
+
+<p>Some functions are available only on certain types of RDDs, such as mean() and variance() on numeric RDDs or join() on key/value pair RDDs.</p>
+
+<h4 id="pair-rdd">Pair RDD</h4>
+<p>Pair RDD’s are RDD containing key value pairs.
+Pair RDDs have a reduceByKey() method that can aggregate data separately for each key, and a join() method that can merge two RDDs together by grouping elements with the same key. 
+i</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#Creating a pair RDD using the first word as the key and then filtering based on the second element</span>
+val pairs <span class="o">=</span> lines.map<span class="o">(</span>x <span class="o">=&gt;</span> <span class="o">(</span>x.split<span class="o">(</span><span class="s2">" "</span><span class="o">)(</span>0<span class="o">)</span>, x<span class="o">))</span>
+pairs.filter<span class="o">{</span><span class="k">case</span> <span class="o">(</span>key, value<span class="p">)</span> <span class="o">=&gt;</span> value.length &lt; 20<span class="o">}</span>
+
+<span class="c">#Word Count in scala</span>
+val input <span class="o">=</span> sc.textFile<span class="o">(</span><span class="s2">"s3://..."</span><span class="o">)</span>
+val words <span class="o">=</span> input.flatMap<span class="o">(</span>x <span class="o">=&gt;</span> x.split<span class="o">(</span><span class="s2">" "</span><span class="o">))</span>
+val result <span class="o">=</span> words.map<span class="o">(</span>x <span class="o">=&gt;</span> <span class="o">(</span>x, 1<span class="o">))</span>.reduceByKey<span class="o">((</span>x, y<span class="o">)</span> <span class="o">=&gt;</span> x + y<span class="o">)</span>
+
+<span class="c"># per key average</span>
+input.combineByKey<span class="o">(</span>
+v <span class="o">=&gt;</span> <span class="o">(</span>v,1<span class="o">)</span>
+<span class="o">(</span>acc: <span class="o">(</span>Int,Int<span class="o">)</span>, v :Int<span class="o">)</span> <span class="o">=&gt;</span> <span class="o">(</span> acc._1 + v, acc._2 + 1 <span class="o">)</span>,
+<span class="o">(</span>acca:<span class="o">(</span>Int,Int<span class="o">)</span>, acc2<span class="o">(</span>Int,Int<span class="o">))</span> <span class="o">=&gt;</span> <span class="o">(</span> acc1._1 + acc2._1 , acc1._2 + acc1._2<span class="o">)</span>
+<span class="o">)</span>.map<span class="o">({</span> <span class="k">case</span> <span class="o">(</span>key, value<span class="p">)</span> <span class="o">=&gt;</span> <span class="o">(</span>key, value._1/value._2<span class="o">)})</span>.map<span class="o">(</span>println<span class="o">(</span>_<span class="o">))</span></code></pre></figure>
+
+<h4 id="grouping">Grouping</h4>
+<p>Instead of doing groupByKey and then applying a map function to do an operation on list of values in a key, do the reduceByKey which is more efficient (as it avoids the middles step of creating a list of keys)</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">val items <span class="o">=</span> sc.parallelize<span class="o">(</span> Seq<span class="o">(</span> <span class="o">(</span><span class="s2">"a"</span>,5<span class="o">)</span> , <span class="o">(</span><span class="s2">"a"</span>,9<span class="o">)</span>, <span class="o">(</span><span class="s2">"b"</span>,4<span class="o">)</span>, <span class="o">(</span><span class="s2">"c"</span>,10<span class="o">))</span>
+items.groupByKey<span class="o">()</span>.map<span class="o">(</span> x <span class="o">=&gt;</span> <span class="o">(</span>x._1 , x._2.sum<span class="o">))</span>.collect<span class="o">()</span></code></pre></figure>
+
+<p>This is inefficient and better use reduceByKey method</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

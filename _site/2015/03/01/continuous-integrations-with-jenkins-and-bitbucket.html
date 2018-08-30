@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Continuous Integrations With Jenkins and BitBucket</title>
+  <meta name="description" content="Two essential components required for continuous integration are:  a central place to hold the repository and automated build tool. With these in place, at a...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2015/03/01/continuous-integrations-with-jenkins-and-bitbucket.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Continuous Integrations With Jenkins and BitBucket</h1>
+    <p class="post-meta">
+	<time datetime="2015-03-01T00:00:00+08:00" itemprop="datePublished">Mar 1, 2015
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/ci/" >ci</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/tools/" >tools</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/devops/" >devops</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>Two essential components required for continuous integration are:  a central place to hold the repository and automated build tool. With these in place, at any time, anyone can checkout a working version of the code which could be deployed or further enhanced with additional features.</p>
+
+<p>We are using BitBucket to hold our Repo and Jenkins as our Continuous Integration build tool. The article details steps for setting this up. The Integration server was running on Ubuntu OS.</p>
+
+<p>While setting up jenkins with bitbucket are trying to accomplish two things here</p>
+
+<ul>
+  <li>Connect Jenkins to the repo at BitBucket.</li>
+  <li>Allow BitBucket to notify jenkins when there is new push</li>
+</ul>
+
+<h3 id="connect-jenkins-to-the-repo-at-bitbucket">Connect Jenkins to the repo at BitBucket</h3>
+
+<p>The repo at bitbucket is a private repo and we will use the public/private key for authentication</p>
+
+<p>Generate a Deployment Key for BitBucket read only access</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ssh-keygen <span class="nt">-f</span> ~/.ssh/deployment_key.rsa <span class="nt">-t</span> rsa <span class="nt">-b</span> 4096</code></pre></figure>
+
+<p>Ignore the passphrase (which may be good for additional hardened security)</p>
+
+<p>This will create two files</p>
+
+<ul>
+  <li>deployment_key.rsa (private)</li>
+  <li>deployment_key.rsa.pub (public)</li>
+</ul>
+
+<h4 id="bitbucket-configuration">Bitbucket configuration</h4>
+<p>In the settings/Deployment Keys  section of your repo, add a new entry and copy the public key from above (deployment_key.rsa.pub)</p>
+
+<h4 id="jenkins-configuration">Jenkins Configuration</h4>
+<p>Jenkins runs under the system user ‘jenkins’ with the home directory set as /var/lib/jenkins (ubuntu). Under this user’s home dir, you have to create a .ssh folder and copy the private key deployment_key.rsa into it. Also create a config file with following content</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Host bitbucket.org
+    IdentityFile ~/.ssh/deployment_key.rsa</code></pre></figure>
+
+<p>Make sure that the jenkins user has read access to .ssh folder and files in that</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">su jenkins
+<span class="nb">sudo </span>chown <span class="nt">-R</span> jenkins ~/.ssh</code></pre></figure>
+
+<p>(If you don’t have the jenkins user password you can change it with sudo passwd command )</p>
+
+<p>In the Jenkins webapp, in your projects configuration, in the configure section, under the “Source Code Management” select the option for Git. Under this section,
+for the URL enter the ssh url of your repo from  BitBucket in the form
+ git@bitbucket.org:<username>/<project>.git 
+select the credentials as none</project></username></p>
+
+<p>Save the Configuration</p>
+
+<p>You can test whether jenkins is able to access the bitbucket repo using the access keys by testing with this command at the command line (while logged in as jenkins user)</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git <span class="nt">-c</span> core.askpass<span class="o">=</span><span class="nb">true </span>ls-remote <span class="nt">-h</span> git@bitbucket.org:&lt;username&gt;/&lt;project&gt;.git  HEAD</code></pre></figure>
+
+<h3 id="allow-bitbucket-to-notify-jenkins-when-there-is-new-push">Allow BitBucket to notify jenkins when there is new push</h3>
+
+<p>install the jenkins bitbucket plugin</p>
+
+<h4 id="bitbucket-config">BitBucket Config</h4>
+<p>In the settings/Webhooks  section of your repo, add a new webhook with the URL as
+http://<jenkins domain="">:<port>/bitbucket-hook/
+Set the trigger to Repository Push</port></jenkins></p>
+
+<h4 id="jenkins-config">Jenkins Config</h4>
+<p>In the Jenkins webapp, in your projects configuration, in the  “Build Triggers” section, enable Build when a change is pushed to BitBucket
+Now whenever the build is triggered at bitbucket, jenkins will do a build</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

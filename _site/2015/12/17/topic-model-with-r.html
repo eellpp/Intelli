@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Topic Model With R</title>
+  <meta name="description" content="Given a corpus we can use topic modelling to get insights into the structure of information embedded in the docs. LDA is topic modelling algorithm that can b...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://localhost:4000/2015/12/17/topic-model-with-r.html">
+  <link rel="alternate" type="application/rss+xml" title="IntelliSignals" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+    <div class="site-title">
+	<a href="/" style="font-size: 42px;">IntelliSignals</a>
+	<h2 style="display: inline;font-size: 16px;margin-bottom: 0px;">BigData, Analytics and Cloud</h2>
+     </div>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/about/">About</a>
+		  
+	  
+        
+	  
+	  
+		  
+		  <a class="page-link" href="/archive/">Archive</a>
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+	  
+	  
+		  
+	  
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Topic Model With R</h1>
+    <p class="post-meta">
+	<time datetime="2015-12-17T00:00:00+08:00" itemprop="datePublished">Dec 17, 2015
+ 	</time>
+	
+		
+
+		
+		|
+		<a href="
+			http://localhost:4000
+		/tag/R/" >R</a>
+		
+		<a href="
+			http://localhost:4000
+		/tag/nlp/" >nlp</a>
+		 
+		
+	
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>Given a corpus we can use topic modelling to get insights into the structure of information embedded in the docs. LDA is topic modelling algorithm that can be used for this purpose.</p>
+
+<p>LDA is a <a href="/2013/12/14/discriminative-vs-generative-classifiers.html">generative algorithm</a> that assumes documents as a bag of words where each document has mixture of topics and each topic has a discrete probability distribution of words. In LDA the topic distribution is assumed to have a Dirichlet prior which gives a smoother topic distribution per document.</p>
+
+<p>Topic models in general try to represent the document with a set of topic vectors.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">library<span class="o">(</span>“topicmodels”<span class="o">)</span>
+<span class="c">#LDA based on gibbs method</span>
+ldaObj &lt;<span class="nt">-LDA</span><span class="o">(</span>dtm,k, <span class="nv">method</span><span class="o">=</span><span class="s2">"Gibbs"</span>, <span class="nv">control</span><span class="o">=</span>list<span class="o">(</span><span class="nv">nstart</span><span class="o">=</span>nstart, seed <span class="o">=</span> seed, <span class="nv">best</span><span class="o">=</span>best, burnin <span class="o">=</span> burnin, iter <span class="o">=</span> iter, <span class="nv">thin</span><span class="o">=</span>thin<span class="o">))</span>
+
+<span class="c">#Get LDA top Topic terms for docs</span>
+ldaOut.topics &lt;- as.matrix<span class="o">(</span>topics<span class="o">(</span>ldaObj<span class="o">))</span>
+
+<span class="c">#Get the topic probability distribution for the docs</span>
+gammaDF &lt;- as.data.frame<span class="o">(</span>ldaObj@gamma<span class="o">)</span></code></pre></figure>
+
+<p>With the LDA object we can get top terms by topics or get the probability distribution of topics for each docs.</p>
+
+<p>While running the LDA model, model tuning is required to fit the model find the values which best describes the data.</p>
+
+<p>References</p>
+
+<ul>
+  <li><a href="https://www.quora.com/What-is-a-good-explanation-of-Latent-Dirichlet-Allocation">LDA intuition by quora user</a></li>
+</ul>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>IntelliSignals</li>
+          <li><a href="mailto:contact@intellisignals.com">contact@intellisignals.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

@@ -1,0 +1,1087 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>IntelliSignals</title>
+    <description>Intelligent systems over Cloud
+</description>
+    <link>http://localhost:4000/</link>
+    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Fri, 31 Aug 2018 06:34:11 +0800</pubDate>
+    <lastBuildDate>Fri, 31 Aug 2018 06:34:11 +0800</lastBuildDate>
+    <generator>Jekyll v3.7.3</generator>
+    
+      <item>
+        <title>Akka Cluster With Router Pools</title>
+        <description>&lt;p&gt;With Akka cluster we have two options while creating routers. Group and Pool. The pool option is better suited when we are trying to scale a computing operation across nodes.&lt;/p&gt;
+
+&lt;p&gt;The activator template has example of this kind of router&lt;/p&gt;
+
+&lt;p&gt;The conf file for a Pool router:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;akka.actor.deployment &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  /statsService/singleton/workerRouter &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    router &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; consistent-hashing-pool
+    cluster &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+      enabled &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; on
+      max-nr-of-instances-per-node &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 16
+      allow-local-routees &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; on
+      use-role &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; compute
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Assuming that each machine has two CPU with four cores, if we have 16 instances then there are two actors per core.
+The router here is defined with consistent-hashing-pool and allow-local-routees is set as off so that processing should be done on remote cores.&lt;/p&gt;
+
+&lt;p&gt;If we want to avoid the hassle of using a ConsistentHashableEnvelope when sending messages to the router, we can tell the StatsJob that it can use a unique ID as a consistent hash key.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;final &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; class StatsJob&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;text: String&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; extends ConsistentHashable &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  override def consistentHashKey &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; id.toString
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;We define a StatsService class which functions as an intermediary between the workers and the router and ensures that duplicate jobs are not dispatched and that failed jobs are logged and restarted. The StatsService defines the router internally.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;class StatsService extends Actor &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  val workerRouter &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; context.actorOf&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;FromConfig.props&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Props[StatsWorker]&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;,
+    name &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;workerRouter&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+  def receive &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; StatsJob&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;text&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if &lt;/span&gt;text &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt;
+      val words &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; text.split&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      val replyTo &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; sender&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; 
+
+      val aggregator &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; context.actorOf&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Props&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+        classOf[StatsAggregator], words.size, replyTo&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+
+      words foreach &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; word &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt;
+        workerRouter.tell&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;word, aggregator&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Then we create the cluster singleton manager on each node by using the akka.cluster.singleton.ClusterSingletonManager
+It manages one singleton actor instance among all cluster nodes or a group of nodes tagged with a specific role.&lt;/p&gt;
+
+&lt;p&gt;example: ClusterSingletonManagerSettings(system).withRole(“compute”))&lt;/p&gt;
+
+&lt;p&gt;Here the singleton is created only on the nodes tagged as role “compute”&lt;/p&gt;
+
+&lt;p&gt;The actual singleton actor is started by the ClusterSingletonManager on the oldest node by creating a child actor from supplied Props. ClusterSingletonManager makes sure that at most one singleton instance is running at any point in time.The cluster failure detector will notice when oldest node becomes unreachable due to things like JVM crash, hard shut down, or network failure. Then a new oldest node will take over and a new singleton actor is created.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt; system.actorOf&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;ClusterSingletonManager.props&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+        singletonProps &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; Props[StatsService],
+        terminationMessage &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; PoisonPill,
+        settings &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; ClusterSingletonManagerSettings&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;system&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.withRole&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;compute&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;,
+        name &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;statsService&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;We can send the message to the singleton StatsService by using the singletonProxy. This proxy is provided by akka.cluster.singleton.ClusterSingletonProxy and keeps track of current singleton manager in cluster. It will route all messages to the current instance of the singleton.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;system.actorOf&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;ClusterSingletonProxy.props&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;singletonManagerPath &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;/user/statsService&quot;&lt;/span&gt;,
+        settings &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; ClusterSingletonProxySettings&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;system&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.withRole&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;compute&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;,
+        name &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;statsServiceProxy&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;All the jobs to the cluster would be send to the path “/user/statsServiceProxy” which is the path of Singleton Proxy which will route to the current cluster manager. The cluster manager will in turn evenly distribute work to the available routees in the pool. If a new node is added, the router will automatically start new routees in the pool and start sending work to them.&lt;/p&gt;
+
+&lt;p&gt;The overall workflow for the average word length calculator
+startup&lt;/p&gt;
+
+&lt;p&gt;for each node {&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;get the config&lt;/li&gt;
+  &lt;li&gt;get the actor system based on config&lt;/li&gt;
+  &lt;li&gt;create-singleton-manager (statsService)&lt;/li&gt;
+  &lt;li&gt;create singleton-proxy (statsServiceProxy)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;}&lt;/p&gt;
+
+&lt;p&gt;statsService{&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;creates worker Router (workerRouter [statsWorker])&lt;/li&gt;
+  &lt;li&gt;creates the aggregator&lt;/li&gt;
+  &lt;li&gt;on message receive send message to worker through workerRouter. 
+ – Set the sender as aggregator so that once work is done, worker can send result to aggregator
+ – Can select the hashing function for the router while sending the work 
+}&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Reference:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://doc.akka.io/docs/akka/2.4.1/scala/cluster-singleton.html&quot;&gt;http://doc.akka.io/docs/akka/2.4.1/scala/cluster-singleton.html&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.lightbend.com/activator/template/akka-sample-cluster-scala&quot;&gt;http://www.lightbend.com/activator/template/akka-sample-cluster-scala&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Sat, 12 Mar 2016 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2016/03/12/akka-cluster-with-router-pools.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2016/03/12/akka-cluster-with-router-pools.html</guid>
+        
+        <category>akka</category>
+        
+        <category>scala</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Data Processing With Apache Spark</title>
+        <description>&lt;p&gt;Spark is a big data processing framework which enables fast and advanced analytics computation over hadoop clusters.&lt;/p&gt;
+
+&lt;h2 id=&quot;spark--architecture&quot;&gt;Spark  Architecture&lt;/h2&gt;
+&lt;p&gt;A Spark application consists of: a driver program and a list of executors.&lt;/p&gt;
+
+&lt;p&gt;The driver program uses the SparkContext object to coordinate the running of the Spark applications run as independent sets of processes on a cluster&lt;/p&gt;
+
+&lt;p&gt;The SparkContext can connect to several types of cluster managers&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Standalone cluster manager&lt;/li&gt;
+  &lt;li&gt;Mesos&lt;/li&gt;
+  &lt;li&gt;YARN&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These cluster managers allocate resources across applications. 
+Once connected to the cluster managers,&lt;/p&gt;
+
+&lt;h4 id=&quot;spark-application-execution-steps&quot;&gt;Spark Application Execution Steps&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;The Spark driver is launched to invoke the main method of the Spark application.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The driver asks the cluster manager for resources to run the application, i.e. to launch executors that run tasks.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The cluster manager launches executors.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;SparkContext acquires executors on nodes in the cluster, which are processes that run computations and store data for your application.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;SparkContext sends your application code (defined by JAR or Python files passed to SparkContext) to the executors.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;SparkContext sends tasks to the executors to run.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Once SparkContext.stop() is executed from the driver or the main method has exited, all the executors are terminated and the cluster resources are released by the cluster manager.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/spark_cluster.png&quot; alt=&quot;sparkcluster&quot; style=&quot;width: 400px;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Reference: &lt;a href=&quot;http://spark.apache.org/docs/latest/cluster-overview.html&quot;&gt;http://spark.apache.org/docs/latest/cluster-overview.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;standalone-cluster-manager&quot;&gt;Standalone Cluster Manager&lt;/h3&gt;
+
+&lt;p&gt;Spark provides a simple standalone mode where spark manages the cluster without an external cluster manager. Each node should have the spark binary installed. In the standalone mode we can manually deploy the spark master and workers.&lt;/p&gt;
+
+&lt;p&gt;First we can start the master&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;./sbin/start-master.sh&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The master web UI can seen at  http://localhost:8080 by default. We can connect each of workers to this master by specifying the master address&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;./bin/spark-class org.apache.spark.deploy.worker.Worker spark://IP:PORT&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;We can also launch the spark standalone cluster with a launch script by specifying the hostnames of all the Spark worker machines in the conf/slaves file in Spark directory&lt;/p&gt;
+
+&lt;p&gt;To further configure the spark cluster edit conf/spark-env.sh&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Set the SPARK_WORKER_INSTANCES which determines the number of Worker instances (#Executors) per node (its default value is only 1)&lt;/li&gt;
+  &lt;li&gt;Set the SPARK_WORKER_CORES # number of cores that one Worker can use&lt;/li&gt;
+  &lt;li&gt;Set SPARK_WORKER_MEMORY  # total amount of memory that can be used on one machine (Worker Node) for running Spark programs.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Copy this configuration file to all Worker Nodes, on the same folder and start the cluster by running sbin/start-all.sh&lt;/p&gt;
+
+&lt;p&gt;Various details to configure the master and slaves are documented quite well at the doc
+&lt;a href=&quot;https://spark.apache.org/docs/1.2.1/spark-standalone.html&quot;&gt;https://spark.apache.org/docs/1.2.1/spark-standalone.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;yarn-cluster-manager&quot;&gt;Yarn Cluster Manager&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/yarnflow.png&quot; alt=&quot;yarnflow&quot; style=&quot;width: 450px;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Reference: &lt;a href=&quot;http://hortonworks.com/blog/apache-hadoop-yarn-concepts-and-applications/&quot;&gt;http://hortonworks.com/blog/apache-hadoop-yarn-concepts-and-applications/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;There are two deploy modes that can be used to launch Spark applications on YARN.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Cluster Mode&lt;/li&gt;
+  &lt;li&gt;Client Mode&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;yarn-cluster-mode&quot;&gt;YARN Cluster Mode&lt;/h4&gt;
+
+&lt;p&gt;In cluster mode, the Spark driver runs inside an application master process.The application master itself runs on one of the node managers in the cluster which is managed by YARN on the cluster. The client can go away after initiating the application.&lt;/p&gt;
+
+&lt;p&gt;While running the application in cluster mode, the driver runs on a different machine than the client, so SparkContext.addJar won’t work out of the box with files that are local to the client. To make files on the client available to SparkContext.addJar, include them with the –jars option in the launch command.&lt;/p&gt;
+
+&lt;h4 id=&quot;yarn-client-mode&quot;&gt;YARN Client Mode&lt;/h4&gt;
+&lt;p&gt;In this mode the driver program is running on the yarn client where we input the command to submit the spark application. It may not be a machine in the yarn cluster. In this mode, although the drive program is running on the yarn client machine, the tasks are executed on the executors in the node managers of the YARN cluster and the application master is only used for requesting resources from YARN.&lt;/p&gt;
+
+&lt;h4 id=&quot;which-mode-to-use&quot;&gt;Which mode to use&lt;/h4&gt;
+
+&lt;p&gt;While deciding which mode to use one the factors to consider is the latency between the drivers and executors. 
+If you are submitting the client application from your laptop and the network latency to worker nodes from your laptop is not high, then you can use the client mode. Else use the cluster mode so that drivers and workers and in co-located space to reduce the latency.
+Instead of submitting applications from your local machine, it is also a good idea to submit it from a gateway machine that is colocated with the worker nodes.&lt;/p&gt;
+
+&lt;p&gt;When the –master parameter is yarn, the ResourceManager’s address is picked up from the Hadoop configuration. Later in the configuration setup the location of these hadoop configuration files need to be provided.&lt;/p&gt;
+
+&lt;h4 id=&quot;default-ports&quot;&gt;Default Ports&lt;/h4&gt;
+
+&lt;p&gt;Spark Standalone master UI : 8080&lt;/p&gt;
+
+&lt;p&gt;SparkContext web UI: 4040&lt;/p&gt;
+
+&lt;p&gt;Spark History Server: 18080&lt;/p&gt;
+
+&lt;p&gt;HDFS Namenode: 50070&lt;/p&gt;
+
+&lt;p&gt;Yarn Resource manager :8088&lt;/p&gt;
+
+&lt;h4 id=&quot;spark-history-server&quot;&gt;Spark History Server&lt;/h4&gt;
+
+&lt;p&gt;The Spark History Server displays information about the history of completed Spark applications. It provides application history from event logs stored in the file system. It periodically checks in the background for applications that have finished and renders a UI to show the history of applications by parsing the associated event logs.&lt;/p&gt;
+
+&lt;p&gt;You can start the history server by executing:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;./sbin/start-history-server.sh&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The Web interface for the spark history server is at port 18080&lt;/p&gt;
+
+&lt;p&gt;Various other options are there to configure the history server in managing logs. Example 
+spark.history.fs.cleaner.maxAge can be set to 7d to retain only last 7 days logs etc&lt;/p&gt;
+
+&lt;p&gt;Ref: &lt;a href=&quot;http://spark.apache.org/docs/latest/monitoring.html&quot;&gt;http://spark.apache.org/docs/latest/monitoring.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;spark-infrastructure&quot;&gt;Spark Infrastructure&lt;/h4&gt;
+
+&lt;p&gt;One of the main advantage of Spark is much faster data processing as compared to Hadoop. Spark does its processing in memory so to leverage on this we should add more RAM and CPU to the spark infrastructure. The typical recommendation are&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;4-8 disks per node, where each disk is 1-2 TB&lt;/li&gt;
+  &lt;li&gt;8-16 cores per node&lt;/li&gt;
+  &lt;li&gt;32 GB or more memory each node. 75% of this for Spark and rest for OS and other applications&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;While development you can also determine how much memory is used for a certain dataset size. Load part of your dataset in a Spark RDD and use the Storage tab of Spark’s monitoring UI (&lt;a href=&quot;http://&amp;lt;driver-node:4040&quot;&gt;http://&amp;lt;driver-node:4040&lt;/a&gt;) to see its size in memory.&lt;/p&gt;
+
+&lt;h2 id=&quot;spark-installation&quot;&gt;Spark Installation&lt;/h2&gt;
+
+&lt;p&gt;While installing spark the objective here is to get it running in standalone mode and over yarn client. This is a development cluster used for local testing.&lt;/p&gt;
+
+&lt;p&gt;My current stack on mac is the following&lt;/p&gt;
+
+&lt;p&gt;Jdk1.8 , scala 2.11, hadoop 2.7.1&lt;/p&gt;
+
+&lt;h4 id=&quot;download&quot;&gt;Download&lt;/h4&gt;
+
+&lt;p&gt;http://spark.apache.org/downloads.html&lt;/p&gt;
+
+&lt;p&gt;Current version of spark is 1.6.1&lt;/p&gt;
+
+&lt;h4 id=&quot;build&quot;&gt;Build&lt;/h4&gt;
+
+&lt;p&gt;Running Spark on YARN requires a Spark build which is built with YARN support.&lt;/p&gt;
+
+&lt;p&gt;Binary distributions can be downloaded from the downloads page of the project website or you can build it yourself.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;build/sbt &lt;span class=&quot;nt&quot;&gt;-Pyarn&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-Phadoop-2&lt;/span&gt;.x assembly&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The various options for compiling spark are described here&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://spark.apache.org/docs/latest/building-spark.html&quot;&gt;https://spark.apache.org/docs/latest/building-spark.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://spark.apache.org/downloads.html&quot;&gt;http://spark.apache.org/downloads.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;configuration&quot;&gt;Configuration&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;cp conf/spark-env.sh.template conf/spark-env.sh
+conf/spark-env.sh&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;edit-the-conf-file-with-following-content&quot;&gt;Edit the conf file with following content&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# Have to add hadoop conf so as to let spark know about hadoop or yarn configuration files.&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# This would be required when connecting spark with yarn&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_CONF_DIR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;HADOOP_CONF_DIR&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:-&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/etc/hadoop&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SPARK_MASTER_IP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;localhost 
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SPARK_WORKER_CORES&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SPARK_WORKER_MEMORY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;800m
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SPARK_WORKER_INSTANCES&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+
+&lt;span class=&quot;c&quot;&gt;# create the path to logs file&lt;/span&gt;
+mkdir &amp;lt;PATH TO LOGS FOLDER&amp;gt;/logs
+
+cp slaves.template slaves
+&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;cp conf/log4j.properties.template conf/log4j.properties
+
+&lt;span class=&quot;c&quot;&gt;#Edit the log4j.properties file with following content&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# Initialize root logger&lt;/span&gt;
+log4j.rootLogger&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;INFO, FILE
+&lt;span class=&quot;c&quot;&gt;# Set everything to be logged to the console&lt;/span&gt;
+log4j.rootCategory&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;INFO, FILE
+&lt;span class=&quot;c&quot;&gt;# Ignore messages below warning level from Jetty, because it's a bit verbose&lt;/span&gt;
+log4j.logger.org.eclipse.jetty&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;WARN
+&lt;span class=&quot;c&quot;&gt;# Set the appender named FILE to be a File appender&lt;/span&gt;
+log4j.appender.FILE&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;org.apache.log4j.FileAppender
+&lt;span class=&quot;c&quot;&gt;# Change the path to where you want the log file to reside&lt;/span&gt;
+log4j.appender.FILE.File&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;lt;PATH TO LOGS FOLDER&amp;gt;/logs/SparkOut.log
+&lt;span class=&quot;c&quot;&gt;# Prettify output a bit&lt;/span&gt;
+log4j.appender.FILE.layout&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;org.apache.log4j.PatternLayout
+log4j.appender.FILE.layout.ConversionPattern&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;%d&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;yy/MM/dd HH:mm:ss&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; %p %c&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;1&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;: %m%n&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;run-spark-shell-in-standalone-mode&quot;&gt;Run Spark Shell in Standalone mode&lt;/h4&gt;
+
+&lt;p&gt;bin/spark-shell&lt;/p&gt;
+
+&lt;h4 id=&quot;run-hdfs-from-hadoop-installation-folder&quot;&gt;Run hdfs from hadoop installation folder&lt;/h4&gt;
+
+&lt;p&gt;./sbin/start-dfs.sh&lt;/p&gt;
+
+&lt;p&gt;namenode UI should be up at &lt;a href=&quot;http://localhost:50070/dfshealth.html#tab-overview&quot;&gt;http://localhost:50070/dfshealth.html#tab-overview&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;run-yarn--from-hadoop-installation-folder&quot;&gt;run yarn  from hadoop installation folder&lt;/h4&gt;
+
+&lt;p&gt;./sbin/start-yarn.sh&lt;/p&gt;
+
+&lt;p&gt;Yarn Cluster manager UI should be up at http://localhost:8088/cluster&lt;/p&gt;
+
+&lt;p&gt;bin/spark-shell –master yarn&lt;/p&gt;
+
+&lt;p&gt;Spark jobs can be seen at http://localhost:4040/jobs/&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# Calculate Pi&lt;/span&gt;
+
+./bin/run-example org.apache.spark.examples.SparkPi 
+
+&lt;span class=&quot;c&quot;&gt;# Calculate Pi in cluster mode&lt;/span&gt;
+bin/spark-submit &lt;span class=&quot;nt&quot;&gt;--class&lt;/span&gt; org.apache.spark.examples.SparkPi &lt;span class=&quot;nt&quot;&gt;--master&lt;/span&gt; yarn &lt;span class=&quot;nt&quot;&gt;--deploy-mode&lt;/span&gt; cluster examples/target/scala-&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/spark-&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.jar 10
+
+&lt;span class=&quot;c&quot;&gt;# Calculate Pi in client mode&lt;/span&gt;
+bin/spark-submit &lt;span class=&quot;nt&quot;&gt;--class&lt;/span&gt; org.apache.spark.examples.SparkPi &lt;span class=&quot;nt&quot;&gt;--master&lt;/span&gt; yarn &lt;span class=&quot;nt&quot;&gt;--deploy-mode&lt;/span&gt; client examples/target/scala-&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/spark-&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.jar 10
+&lt;span class=&quot;c&quot;&gt;#The output will be sent to the console&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;To view the output result “Pi is roughly 3.140784” while running in cluster mode, go to the Yarn Cluster manager UI (http://localhost:8088/cluster). Here you can see the Pi application marked as finished. Click on the Application ID and open the logs file stdout&lt;/p&gt;
+
+&lt;h4 id=&quot;mllib-correlations-example&quot;&gt;MLlib Correlations example:&lt;/h4&gt;
+
+&lt;p&gt;./bin/run-example org.apache.spark.examples.mllib.Correlations&lt;/p&gt;
+
+&lt;h4 id=&quot;mllib-linear-regression-example&quot;&gt;MLlib Linear Regression example:&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;./bin/spark-submit &lt;span class=&quot;nt&quot;&gt;--master&lt;/span&gt; yarn &lt;span class=&quot;nt&quot;&gt;--class&lt;/span&gt; org.apache.spark.examples.mllib.LinearRegression examples/target/scala-&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/spark-&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.jar data/mllib/sample_linear_regression_data.txt  
+
+spark-submit over yarn client
+
+/spark-submit &lt;span class=&quot;nt&quot;&gt;--master&lt;/span&gt; yarn &lt;span class=&quot;nt&quot;&gt;--class&lt;/span&gt; org.apache.spark.examples.mllib.LinearRegression examples/target/scala-&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/spark-&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.jar data/mllib/sample_linear_regression_data.txt  &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;once-the-work-is-done-stop-the-cluster&quot;&gt;Once the work is done, stop the cluster&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#stop yarn from hadoop installation folder&lt;/span&gt;
+sbin/stop-yarn.sh
+&lt;span class=&quot;c&quot;&gt;#stop dfs from hadoop installation folder&lt;/span&gt;
+sbin/stop-dfs.sh&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Refer to the official doc for running jobs on Yarn&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://spark.apache.org/docs/latest/running-on-yarn.html&quot;&gt;http://spark.apache.org/docs/latest/running-on-yarn.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Spark History Server&lt;/p&gt;
+
+&lt;h2 id=&quot;spark-programming&quot;&gt;Spark Programming&lt;/h2&gt;
+
+&lt;p&gt;In Spark the computations are expressed in terms of actions and transformations on RDD (Resilient Distributed Datasets). The RDD in turn is an immutable collection of objects. Each RDD is split into multiple partitions which may be computed on different nodes of the cluster. Operations over RDD are automatically parallelized over the cluster. The RDD’s can be persisted in memory which helps in creating a fast pipeline of operations without costly disk seeks.&lt;/p&gt;
+
+&lt;h4 id=&quot;driver&quot;&gt;Driver&lt;/h4&gt;
+&lt;p&gt;Every Spark application consists of a driver program that launches various parallel operations on a cluster. Driver programs access Spark through a SparkContext object, which represents a connection to a computing cluster. Once you have a SparkContext, you can use it to build RDDs Example : the call to sc.textFile creates an RDD.
+To run various operations on the RDD you can call functions on them. Example  the count operation. There are more than 80 high level functions that we can use to query the data.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;val lines &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; sc.textFile&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;“Example.txt”&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+lines.count&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Once created, RDDs offer two types of operations: transformations and actions.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Transformations construct a new RDD from a previous one.&lt;/li&gt;
+  &lt;li&gt;Actions, on the other hand, compute a result based on an RDD&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Spark computes RDD only in a lazy fashion—that is, the first time they are used in an action.
+RDD are recomputed each time you want to run an action on it. To persist an RDD you have to use the persist action. Persisting RDD on disk, instead of the memory is also possible.&lt;/p&gt;
+
+&lt;p&gt;To Parallize a collection, or a dataset that is already in memory, you can  parallize() method. The elements of this collections are copied to an RDD and operated in parallel&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;val input &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; sc.parallelize&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;List&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1,2,3,4,5&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Use the aggregate function to do parallel computation in different function and provide custom function to combine the results of computation from different threads&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# eg sum of the numbers&lt;/span&gt;
+input.aggregate&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0,0&lt;span class=&quot;o&quot;&gt;))(&lt;/span&gt;
+	&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x,y&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; x._1 + y, x._2 + 1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x,y&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; x._1 + y._1 , x._2 + y._2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Some functions are available only on certain types of RDDs, such as mean() and variance() on numeric RDDs or join() on key/value pair RDDs.&lt;/p&gt;
+
+&lt;h4 id=&quot;pair-rdd&quot;&gt;Pair RDD&lt;/h4&gt;
+&lt;p&gt;Pair RDD’s are RDD containing key value pairs.
+Pair RDDs have a reduceByKey() method that can aggregate data separately for each key, and a join() method that can merge two RDDs together by grouping elements with the same key. 
+i&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#Creating a pair RDD using the first word as the key and then filtering based on the second element&lt;/span&gt;
+val pairs &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; lines.map&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x.split&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)(&lt;/span&gt;0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, x&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+pairs.filter&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;key, value&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; value.length &amp;lt; 20&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#Word Count in scala&lt;/span&gt;
+val input &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; sc.textFile&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;s3://...&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+val words &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; input.flatMap&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; x.split&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+val result &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; words.map&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x, 1&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;.reduceByKey&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;x, y&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; x + y&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# per key average&lt;/span&gt;
+input.combineByKey&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+v &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;v,1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;acc: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Int,Int&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, v :Int&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; acc._1 + v, acc._2 + 1 &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;,
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;acca:&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Int,Int&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, acc2&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Int,Int&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; acc1._1 + acc2._1 , acc1._2 + acc1._2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.map&lt;span class=&quot;o&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;key, value&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;key, value._1/value._2&lt;span class=&quot;o&quot;&gt;)})&lt;/span&gt;.map&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;println&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;_&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;grouping&quot;&gt;Grouping&lt;/h4&gt;
+&lt;p&gt;Instead of doing groupByKey and then applying a map function to do an operation on list of values in a key, do the reduceByKey which is more efficient (as it avoids the middles step of creating a list of keys)&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;val items &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; sc.parallelize&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; Seq&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;,5&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; , &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;,9&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;,4&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;, &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;,10&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+items.groupByKey&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;.map&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; x &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;x._1 , x._2.sum&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;.collect&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This is inefficient and better use reduceByKey method&lt;/p&gt;
+
+</description>
+        <pubDate>Mon, 11 Jan 2016 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2016/01/11/data-processing-with-apache-spark.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2016/01/11/data-processing-with-apache-spark.html</guid>
+        
+        <category>bigdata</category>
+        
+        <category>analytics</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Hadoop Ecosystem</title>
+        <description>&lt;h3 id=&quot;hadoop-installation-on-mac&quot;&gt;Hadoop Installation on Mac&lt;/h3&gt;
+
+&lt;h4 id=&quot;installation&quot;&gt;Installation&lt;/h4&gt;
+&lt;p&gt;Download the latest version of hadoop binaries and extract it in local folder&lt;/p&gt;
+
+&lt;p&gt;On Mac you can also install with the brew command&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;brew install hadoop
+(The current version at writing was 2.7.3)
+This  installs hadoop at /usr/local/Cellar/hadoop/2.7.3&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The current JDK version was 1.8 and the java home was set up as /Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home
+It is a good practice to set this up in .bashrc so that it could be picked up all your JVM based apps&lt;/p&gt;
+
+&lt;h4 id=&quot;configuration&quot;&gt;Configuration&lt;/h4&gt;
+
+&lt;p&gt;Edit hadoop-env.sh&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; vim etc/hadoop/hadoop-env.sh
+The JAVA_HOME should be &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;as below &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;file
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;JAVA_HOME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;/usr/libexec/java_home&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;SSH
+Mac: Enable Remote Login in System Preference -&amp;gt; Sharing.&lt;/p&gt;
+
+&lt;p&gt;ssh and check that you can ssh to the localhost without a passphrase:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ssh localhost
+If you cannot ssh to localhost without a passphrase, execute the following commands:
+
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ssh-keygen &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; dsa &lt;span class=&quot;nt&quot;&gt;-P&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;''&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-f&lt;/span&gt; ~/.ssh/id_dsa
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; ~/.ssh/id_dsa.pub &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&lt;/span&gt; ~/.ssh/authorized_keys&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Edit following config files in your Hadoop directory&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; etc/hadoop/core-site.xml:
+
+&amp;lt;configuration&amp;gt;
+    &amp;lt;property&amp;gt;
+        &amp;lt;name&amp;gt;fs.defaultFS&amp;lt;/name&amp;gt;
+        &amp;lt;value&amp;gt;hdfs://localhost:9000&amp;lt;/value&amp;gt;
+    &amp;lt;/property&amp;gt;
+&amp;lt;/configuration&amp;gt;
+2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; etc/hadoop/hdfs-site.xml:
+
+&amp;lt;configuration&amp;gt;
+    &amp;lt;property&amp;gt;
+        &amp;lt;name&amp;gt;dfs.replication&amp;lt;/name&amp;gt;
+        &amp;lt;value&amp;gt;1&amp;lt;/value&amp;gt;
+    &amp;lt;/property&amp;gt;
+&amp;lt;/configuration&amp;gt;
+3&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; etc/hadoop/mapred-site.xml:
+
+&amp;lt;configuration&amp;gt;
+    &amp;lt;property&amp;gt;
+        &amp;lt;name&amp;gt;mapreduce.framework.name&amp;lt;/name&amp;gt;
+        &amp;lt;value&amp;gt;yarn&amp;lt;/value&amp;gt;
+    &amp;lt;/property&amp;gt;
+&amp;lt;/configuration&amp;gt;
+4&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; etc/hadoop/yarn-site.xml:
+
+&amp;lt;configuration&amp;gt;
+    &amp;lt;property&amp;gt;
+        &amp;lt;name&amp;gt;yarn.nodemanager.aux-services&amp;lt;/name&amp;gt;
+        &amp;lt;value&amp;gt;mapreduce_shuffle&amp;lt;/value&amp;gt;
+    &amp;lt;/property&amp;gt;
+&amp;lt;/configuration&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;execution&quot;&gt;Execution&lt;/h4&gt;
+&lt;p&gt;Format and start HDFS and YARN&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;hdfs namenode -format
+start-dfs.sh&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Now you can browse the web interface for the NameNode at - http://localhost:50070/&lt;/p&gt;
+
+&lt;p&gt;Make the HDFS directories required to execute MapReduce jobs:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; hdfs dfs &lt;span class=&quot;nt&quot;&gt;-mkdir&lt;/span&gt; /user
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; hdfs dfs &lt;span class=&quot;nt&quot;&gt;-mkdir&lt;/span&gt; /user/&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;username&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;#make sure you add correct username here&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;start-resourcemanager-daemon-and-nodemanager-daemon&quot;&gt;Start ResourceManager daemon and NodeManager daemon:&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; start-yarn.sh&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;browse-the-web-interface-for-the-resourcemanager-at---httplocalhost8088&quot;&gt;Browse the web interface for the ResourceManager at - http://localhost:8088/&lt;/h4&gt;
+
+&lt;p&gt;Test examples code that came with the hadoop version&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; bin/hdfs dfs &lt;span class=&quot;nt&quot;&gt;-mkdir&lt;/span&gt; /input
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; bin/hdfs dfs &lt;span class=&quot;nt&quot;&gt;-put&lt;/span&gt; libexec/etc/hadoop /input
+
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; hadoop jar libexec/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar &lt;span class=&quot;nb&quot;&gt;grep&lt;/span&gt; /input/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; /output &lt;span class=&quot;s1&quot;&gt;'dfs[a-z.]+'&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;examine-the-output-files&quot;&gt;Examine the output files:&lt;/h4&gt;
+
+&lt;p&gt;Copy the output files from the distributed filesystem to the local filesystem and examine them:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; hdfs dfs &lt;span class=&quot;nt&quot;&gt;-get&lt;/span&gt; /output ./output
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; vim ./output/part-r-00000&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;submit-a-yarn-job&quot;&gt;submit a yarn job&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; yarn jar libexec/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.3.jar pi 6 1000&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;When you’re done, stop the daemons with:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;stop-yarn.sh
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;stop-dfs.sh&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Reference: http://zhongyaonan.com/hadoop-tutorial/setting-up-hadoop-2-6-on-mac-osx-yosemite.html&lt;/p&gt;
+</description>
+        <pubDate>Mon, 11 Jan 2016 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2016/01/11/hadoop-ecosystem.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2016/01/11/hadoop-ecosystem.html</guid>
+        
+        <category>hadoop</category>
+        
+        <category>bigdata</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Predictive Analytics Project Workflow</title>
+        <description>&lt;p&gt;There are three main stages in a predictive analytics project&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Requirement gathering&lt;/li&gt;
+  &lt;li&gt;Data modeling&lt;/li&gt;
+  &lt;li&gt;Delivery and deployment&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/assets/analytics_workflow.png&quot; alt=&quot;analytics_workflow&quot; style=&quot;width: 450px;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;requirement-gathering&quot;&gt;Requirement Gathering&lt;/h3&gt;
+&lt;p&gt;While working out the requirements for a predictive analytics project it is important to define the objectives clearly. Care should be taken to avoid making the objectives overly broad or overly specific. For example, if we are measuring the customer churn at an online portal, we can define the task as the percentage of customers who do not access for a period of 3 months after continuous weekly activities.&lt;/p&gt;
+
+&lt;p&gt;The “No Free Lunch Theorm” in Machine Learning states that no one model is optimal in absence of any knowledge about the problem. So everthing starts with understanding the problem and then selecting the model to fit the data. Infact defining the objectives is one part of the problem we are solving. Another aspect is to deep dive into the domain context to better understand the nature of dataset features.&lt;/p&gt;
+
+&lt;p&gt;Once the objectives are clearly defined we can map the requirements for the dataset we need to get.  In the customer churn example, the data set for customers should not have the anonymous visitors, or logged in users who haven’t shopped yet from the website.  All the assumption in preparing the dataset should should again be confirmed with the project owner.&lt;/p&gt;
+
+&lt;p&gt;Along with the dataset, we need to define the performance metrics for the models and minimum threshold of acceptable performance that is good enough. These performance goals are the project metrics that should be acceptable to the project owner so that we have clear target to achieve. The performance thresholds should be realistic, taking into consideration the complexity of the problem we are addressing. Predictive models are never perfect and there could be endless optimization loop if we don’t agree on these early on.&lt;/p&gt;
+
+&lt;p&gt;The amount of data we need to collect would depend on the models and level of accuracy that we are targeting. Simpler models based on linear regression etc may need less features and data than other complex models.&lt;/p&gt;
+
+&lt;h3 id=&quot;data-modeling&quot;&gt;Data Modeling&lt;/h3&gt;
+&lt;p&gt;Once we have the data,  we need to process it to map to our requirement. During this stage, we do exploratory data analysis to better understand the data. This include understanding the various features and their relationships, the data quality, missing elements and whether any imputations can be done. Algorithms like KNN can help impute the missing value by making intelligent guesses on them. We visualize the features by plotting them and try to understand the relationship between among them.
+We would also need to transform the data into proper units and scales so that they could be comparable. Some of the algorithms require the data to be in numerical or categorical and we have appropriately transform the features. We also have to identify the outliers and other problematic features in the data like redundant features and features that have no variance etc.&lt;/p&gt;
+
+&lt;p&gt;While exploring the data we have to choose the features which are suitable for building predictive models. The number of features define the dimensions of the model. Higher number of dimensions will make the models complex. It will increase the computation time and also would mean that we need larger data set to learn from all the possible combination of features.&lt;/p&gt;
+
+&lt;p&gt;To reduce the number of features we can combine or remove some of the features. We can use methods like  PCA, which create a set of new features which are a linear combination of existing features thus reducing the number features. The first principal component of PCA can be visualized as the line in the feature space along which the data varies most. The second principal component is the next line, which is uncorrelated from the first line and along which data varies most and so on. Since PCA is based on variance of data points, we need to scale the features before applying the method.&lt;/p&gt;
+
+&lt;p&gt;To build our predictive models  we choose a model based on various constraints.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The nature of the task could define whether regression, classification or clustering models is required&lt;/li&gt;
+  &lt;li&gt;Is the application time sensitive.&lt;/li&gt;
+  &lt;li&gt;Do we need to update the model frequently. How much time it takes in training the models&lt;/li&gt;
+  &lt;li&gt;As the size of data increases, would we be able to scale the computation&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;It is better to start with simpler models like NaiveBayes and linear/logistic regression etc and get a base performance. It also gives a measure of how far we are from our target accuracy and becomes the base from where further iterations are done. We can create different models by varying the feature sets and applying different methods. We can also create models which are combination of other models.&lt;/p&gt;
+
+&lt;p&gt;The models are then tested for accuracy in prediction. Accuracy tests depend on the type of model. For regression models it could be the RMSE, for classification would be the confusion matrix, precision, recall and fscore.&lt;/p&gt;
+
+&lt;p&gt;Models are then further optimised to improve their precision or computation speed.&lt;/p&gt;
+
+&lt;h3 id=&quot;deployment&quot;&gt;Deployment&lt;/h3&gt;
+&lt;p&gt;At this stage the models and the results are presented for project delivery. If the next stage involves deployment of models into a production system then this would involve working together with the software team to integrate the models into their existing workflow.&lt;/p&gt;
+
+&lt;p&gt;There are various options for integration. If the model is built using R then we can save the model object and this binary object is then loaded in a new R session with latest data for making predictions. This could be a batch job done over hadoop cluster or single machine. In stream processing environment it would be better to decouple the prediction part from main workflow to make the system more responsive. You could even have a prediction api as a service to decouple this so that this api service could be independently scaled on demand.&lt;/p&gt;
+
+&lt;p&gt;However be the deployment scenario, it is important to capture the metrics of predicted results for continuous model improvement.&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 24 Dec 2015 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2015/12/24/predictive-analytics-project-workflow.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2015/12/24/predictive-analytics-project-workflow.html</guid>
+        
+        <category>analytics</category>
+        
+        <category>bigdata</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Topic Model With R</title>
+        <description>&lt;p&gt;Given a corpus we can use topic modelling to get insights into the structure of information embedded in the docs. LDA is topic modelling algorithm that can be used for this purpose.&lt;/p&gt;
+
+&lt;p&gt;LDA is a &lt;a href=&quot;/2013/12/14/discriminative-vs-generative-classifiers.html&quot;&gt;generative algorithm&lt;/a&gt; that assumes documents as a bag of words where each document has mixture of topics and each topic has a discrete probability distribution of words. In LDA the topic distribution is assumed to have a Dirichlet prior which gives a smoother topic distribution per document.&lt;/p&gt;
+
+&lt;p&gt;Topic models in general try to represent the document with a set of topic vectors.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;library&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;“topicmodels”&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#LDA based on gibbs method&lt;/span&gt;
+ldaObj &amp;lt;&lt;span class=&quot;nt&quot;&gt;-LDA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;dtm,k, &lt;span class=&quot;nv&quot;&gt;method&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Gibbs&quot;&lt;/span&gt;, &lt;span class=&quot;nv&quot;&gt;control&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;list&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;nstart&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;nstart, seed &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; seed, &lt;span class=&quot;nv&quot;&gt;best&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;best, burnin &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; burnin, iter &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; iter, &lt;span class=&quot;nv&quot;&gt;thin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;thin&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#Get LDA top Topic terms for docs&lt;/span&gt;
+ldaOut.topics &amp;lt;- as.matrix&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;topics&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;ldaObj&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#Get the topic probability distribution for the docs&lt;/span&gt;
+gammaDF &amp;lt;- as.data.frame&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;ldaObj@gamma&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;With the LDA object we can get top terms by topics or get the probability distribution of topics for each docs.&lt;/p&gt;
+
+&lt;p&gt;While running the LDA model, model tuning is required to fit the model find the values which best describes the data.&lt;/p&gt;
+
+&lt;p&gt;References&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.quora.com/What-is-a-good-explanation-of-Latent-Dirichlet-Allocation&quot;&gt;LDA intuition by quora user&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Thu, 17 Dec 2015 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2015/12/17/topic-model-with-r.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2015/12/17/topic-model-with-r.html</guid>
+        
+        <category>R</category>
+        
+        <category>nlp</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Protocol Buffers for Sending Data Between Services</title>
+        <description>&lt;p&gt;Google Protocol Buffers provides a useful method to send data between services in binary format. Once the schema is defined then there are parsers in various languages that can consume the data. This handles the case of future updates when there are modifications to schema and it has to be transparently handled across services without breaking them.&lt;/p&gt;
+
+&lt;p&gt;https://developers.google.com/protocol-buffers/&lt;/p&gt;
+
+</description>
+        <pubDate>Sun, 22 Nov 2015 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2015/11/22/protocol-buffers-for-sending-data-between-services.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2015/11/22/protocol-buffers-for-sending-data-between-services.html</guid>
+        
+        <category>tools</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Building Logistic Regression Models</title>
+        <description>&lt;p&gt;Logistic regression estimates the probability of the output variable based on the linear combination of one or more predictor variables by using the logit function.  The nonlinear transformation of the logit function makes it useful for complex classification models.&lt;/p&gt;
+
+&lt;h4 id=&quot;assumptions-of-logistic-regression&quot;&gt;Assumptions of logistic regression&lt;/h4&gt;
+&lt;p&gt;Logistic regression makes fewer assumptions about the input than linear regression.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;It does not need a linear relationship between the dependent and independent variables&lt;/li&gt;
+  &lt;li&gt;The features are no longer assumed to be multivariate normal or homoscedastic .&lt;/li&gt;
+  &lt;li&gt;The residuals are also not assumed to be normally distributed.&lt;/li&gt;
+  &lt;li&gt;The features need not be interval or ratio scaled.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Logistic regression requires larger sample sizes for better estimates than compared to simple linear regression&lt;/p&gt;
+
+&lt;h4 id=&quot;goodness-of-fit-and-statistical-tests-in-logistic-regression&quot;&gt;Goodness of fit and statistical tests in logistic regression&lt;/h4&gt;
+
+&lt;p&gt;Pseudo R2 and McFadden R2 can be used measure the variance explained by the model.&lt;/p&gt;
+
+&lt;p&gt;Another simple check would be to check whether the difference between the null deviance and residual deviance is significant. The difference between the residual and null deviances can be approximated as a chi squared distribution. We can compute an approximate p value for this difference.&lt;/p&gt;
+
+&lt;p&gt;If the p-value that we obtain is tiny, so we feel certain that our model produces predictions that are better than average guessing.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#output from glm&lt;/span&gt;
+... 
+    Null deviance: 4080.2  on 3023  degrees of freedom
+Residual deviance: 1451.0  on 3023  degrees of freedom
+AIC: 1651
+
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; 1-pchisq&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;4080.2 - 1451.0 , &lt;span class=&quot;nv&quot;&gt;df&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;3023 - 3023&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1] 0&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The low p value means that the null hypothesis can be rejected and model does explains the output variance.&lt;/p&gt;
+
+&lt;h4 id=&quot;roc-curve&quot;&gt;ROC Curve&lt;/h4&gt;
+&lt;p&gt;A ROC (Receiver Operating Characteristic Curve) is used for summarizing classifier performance over a range of trade-offs between true positive (TP) and false positive (FP) error rates. ROC curve is a plot of sensitivity (the ability of the model to predict an event correctly) versus the specificity for the possible cut-off classification probability values.
+This means&lt;/p&gt;
+
+&lt;p&gt;The ROC of random guessing lies on the diagonal line. The ROC of a perfect diagnostic technique is a point at the upper left corner of the graph, where the TP proportion is 1.0 and the FP proportion is 0.&lt;/p&gt;
+
+&lt;p&gt;The ROC is a curve generated by plotting the true positive rate (TPR) against the false positive rate (FPR) at various threshold settings while the AUC is the area under the ROC curve. As a rule of thumb, a model with good predictive ability should have an AUC closer to 1 (1 is ideal) than to 0.5.&lt;/p&gt;
+
+&lt;p&gt;ROCR package provide functions to plot the ROC curve&lt;/p&gt;
+
+&lt;h4 id=&quot;auc&quot;&gt;AUC&lt;/h4&gt;
+&lt;p&gt;The Area Under the Curve (AUC) is a performance metric for a ROC curve. The higher the area under the curve the better prediction power the model has. c = 0.8 can be interpreted to mean that a randomly selected individual from the positive group has a test value larger than that for a randomly chosen individual from the negative group 80 percent of the time.&lt;/p&gt;
+
+&lt;p&gt;ROCR package provides function to calculate the model AUC&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;library&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;ROCR&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+pred &amp;lt;- prediction&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;predicted_outcomes, original_outcome&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+roc &amp;lt;- performance&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;pred, &lt;span class=&quot;s2&quot;&gt;&quot;tpr&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;fpr&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+plot &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;roc&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+auc &amp;lt;- performance&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;pred, measure &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;auc&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+auc &amp;lt;- auc@y.values[[1]]
+auc&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;References&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;http://stats.stackexchange.com/questions/105501/understanding-roc-curve?rq=1&lt;/li&gt;
+  &lt;li&gt;https://onlinecourses.science.psu.edu/stat504/node/163&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Wed, 18 Nov 2015 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2015/11/18/building-logistic-regression-models.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2015/11/18/building-logistic-regression-models.html</guid>
+        
+        <category>R analytics</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Scala Json Parsing With Play-JSON</title>
+        <description>&lt;p&gt;There are many JSON libraries for scala but here we are using play-json which is part of Play framework but also can be used independently.&lt;/p&gt;
+
+&lt;p&gt;I am using &lt;a href=&quot;https://github.com/lihaoyi/Ammonite&quot;&gt;ammonite repl&lt;/a&gt; to try out the json parsing on console.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# load the libraries&lt;/span&gt;
+load.ivy&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;com.typesafe.play&quot;&lt;/span&gt; %% &lt;span class=&quot;s2&quot;&gt;&quot;play-json&quot;&lt;/span&gt; % &lt;span class=&quot;s2&quot;&gt;&quot;2.4.0&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 
+import play.libs.Json._
+
+var rawJson &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&quot; {&quot;&lt;/span&gt;name&lt;span class=&quot;s2&quot;&gt;&quot;: &quot;&lt;/span&gt;John&lt;span class=&quot;s2&quot;&gt;&quot;, &quot;&lt;/span&gt;age&lt;span class=&quot;s2&quot;&gt;&quot;: 20, &quot;&lt;/span&gt;address&lt;span class=&quot;s2&quot;&gt;&quot;: &quot;&lt;/span&gt;&lt;span class=&quot;c&quot;&gt;#42 milky way&quot;, &quot;tags&quot; : [ &quot;freshman&quot;, &quot;scholar&quot; ] } &quot;&quot;&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The first step is going from a JSON string to JsValue objects by parsing the json string. The JsValue tree can be parsed by using \ and \ where&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;\ selects an element in a JsObject, returning a JsValue&lt;/li&gt;
+  &lt;li&gt;\ selects an element in the entire tree returning a Seq[JsValue]&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# convert from JsonValue to desired typing &lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.as[String]
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;age&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.as[Int]
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;age&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.asOpt[Int]
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;“address” &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.as[String]
+&lt;span class=&quot;c&quot;&gt;# get the first tag&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;tags&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)(&lt;/span&gt;0&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.as[String]
+
+&lt;span class=&quot;c&quot;&gt;# if this was an array of people information then we can take each of the name as&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;json &lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.map&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;_.as[String]&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; match &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; JsDefined&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;name&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; println&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;name&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; error:JsUndefined &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; println&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;error&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; _ &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; println&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Invalid type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;If we are unsure about the content of JsValue then we can use asOpt which will return a None if deserializing causes and exception.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.asOpt[String]&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;If we want a boolean then we can use the validate method which returns JsSuccess and JsError 
+Better to use the validate method to check the parsed json&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.validate[String] match &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; s: JsSuccess[String] &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; println&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Name: &quot;&lt;/span&gt; + s.get&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; e: JsError &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; println&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Errors: &quot;&lt;/span&gt; + JsError.toJson&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;e&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;.toString&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Convert the JSON structure to scala data model
+To read from json we need to define a Reads[T] object for each class which defines how we read each incoming json object for the class.
+Reads[T] and Writes[T] objects have to be defined to read and write from json object. If the format for both are same then instead we can use the Format[T] object&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; class Student &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;name: String, age: Int&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+
+implicit val student : Reads[Student]  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;JsPath &lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.read[String] and
+  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;JsPath &lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;age&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.read[Int]
+&lt;span class=&quot;o&quot;&gt;)(&lt;/span&gt;Student&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+val person &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.as[Student] 
+studentsObj.name 
+studentsObj.age
+
+&lt;span class=&quot;c&quot;&gt;#Convert to a list of students&lt;/span&gt;
+
+rawJson &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&quot; [ {&quot;&lt;/span&gt;name&lt;span class=&quot;s2&quot;&gt;&quot;: &quot;&lt;/span&gt;John&lt;span class=&quot;s2&quot;&gt;&quot;, &quot;&lt;/span&gt;age&lt;span class=&quot;s2&quot;&gt;&quot;: 22 }, {&quot;&lt;/span&gt;name&lt;span class=&quot;s2&quot;&gt;&quot;: &quot;&lt;/span&gt;Alice&lt;span class=&quot;s2&quot;&gt;&quot;, &quot;&lt;/span&gt;age&lt;span class=&quot;s2&quot;&gt;&quot;: 20 } ] &quot;&quot;&quot;&lt;/span&gt;
+
+val people &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.as[List[Students]] 
+&lt;span class=&quot;c&quot;&gt;#names of students&lt;/span&gt;
+people.map&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;_.name&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;examples-of-reading-some-other-type-of-data-structures&quot;&gt;Examples of reading some other type of data structures&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;rawJson &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&quot; {&quot;&lt;/span&gt;school&lt;span class=&quot;s2&quot;&gt;&quot;: &quot;&lt;/span&gt;public school&lt;span class=&quot;s2&quot;&gt;&quot; ,&quot;&lt;/span&gt;students&lt;span class=&quot;s2&quot;&gt;&quot;: [ {&quot;&lt;/span&gt;name&lt;span class=&quot;s2&quot;&gt;&quot;: &quot;&lt;/span&gt;John&lt;span class=&quot;s2&quot;&gt;&quot;, &quot;&lt;/span&gt;age&lt;span class=&quot;s2&quot;&gt;&quot;: 22 }, {&quot;&lt;/span&gt;name&lt;span class=&quot;s2&quot;&gt;&quot;: &quot;&lt;/span&gt;Alice&lt;span class=&quot;s2&quot;&gt;&quot;, &quot;&lt;/span&gt;age&lt;span class=&quot;s2&quot;&gt;&quot;: 20 } ] } &quot;&quot;&quot;&lt;/span&gt;
+
+val json &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;students&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+val nameReads: Reads[List[Students]] &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;JsPath &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;students&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.read[List[Students]]
+val nameResult: JsResult[List[Students]] &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; json.validate[List[Students]]&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;nameReads&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+val parseResult &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;students&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.read[List[Students]]
+
+val people &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;Json.parse&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;rawJson&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;students&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.as[List[Students]] &lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;handling-null-values&quot;&gt;Handling null values&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;implicit val student : Reads[Student]  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;JsPath &lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.readNullable[String] and
+  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;JsPath &lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;age&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.readNullable[Int]
+&lt;span class=&quot;o&quot;&gt;)(&lt;/span&gt;Student&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+With readNullable we get an Option[T] object which means that field itself is optional&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;handling-missing-values&quot;&gt;Handling missing values&lt;/h4&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;implicit val student : Reads[Student]  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;JsPath &lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.read&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; Reads.optionNoError[String] &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; and
+  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;JsPath &lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;age&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.read[Reads.optionNoError[Int]]
+&lt;span class=&quot;o&quot;&gt;)(&lt;/span&gt;Student&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This is cause error if name and age are missing in the json data field&lt;/p&gt;
+
+&lt;h4 id=&quot;handling-validation&quot;&gt;Handling validation&lt;/h4&gt;
+&lt;p&gt;The read and readNullable have an implicit parameter which can be used for validation with constraints like email,  maxLength, filter, pattern and more …&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;JsPath &lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.readNullable[String]&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;minLength[String]&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;10&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; and
+  &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;JsPath &lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;email&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;.read[String]&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;email&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;https://www.playframework.com/documentation/2.4.x/api/scala/index.html#play.api.libs.json.ConstraintReads&lt;/p&gt;
+
+&lt;p&gt;Reference:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;https://www.playframework.com/documentation/2.5.x/ScalaJson&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Sat, 22 Aug 2015 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2015/08/22/scala-json-parsing-with-play-json.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2015/08/22/scala-json-parsing-with-play-json.html</guid>
+        
+        <category>scala</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>OpsWorks for App Deployment</title>
+        <description>&lt;p&gt;AWS OpsWorks is based on Chef, a tool for configuring and automating the infrastructure deployments. Since it is based on Chef, it comes with all the benefits of cookbooks and recipes and the community resources. In addition OpsWorks provides AWS specific features like auto scaling, monitoring, access to other aws resources, security and easy management of server nodes.&lt;/p&gt;
+
+&lt;p&gt;OpsWorks has the concept of stacks and layers. 
+A stack describes all the resources of your entire application. Within a stack are the Layers that allow to group the resources in architecture patters that could define the stack.It could be a database layer, web server layer and middleware layer etc. Each Layer has cookbooks and recipes which provide the scripts to manage the resources. Chef provides abstraction like roles, environments and databags etc which models the development and deployment workflow. OpsWorks builds on top of that by providing concept of Layers and Stack. This way of partitioning things allow better security and allows managing and scaling the components independently.&lt;/p&gt;
+
+&lt;p&gt;To start with OpsWorks, you need create some IAM roles to enable access privileges.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Service Role: This role the allow OpsWorks to interact with other AWS service. The standard service role has permissions on EC2, CloudWatch, ELB, and RDS. You can create a custom role for access on other services.&lt;/li&gt;
+  &lt;li&gt;EC2 Role: Another IAM role is to enables the instances in you stack to access various other services like s3 etc.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;From the OpsWorks Dashboard create a new Stack and within that add layers.
+Within each layer you can add instances. 
+Create an app and provide the location of source code destination. It could be a remote server, github or at S3. 
+Within the layers tab, provide the location of cookbooks source and add recipes to be  run at various stages like deployment (or at undeploy , shutdown etc). 
+Once these necessary configurations are over, deploy the application.&lt;/p&gt;
+
+&lt;p&gt;With these steps it should be able to deploy a simple application. I will be expanding this further with details in adding other elements of stack like ELB and database instance. Also on doing these remotely with SDK.&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 20 Aug 2015 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2015/08/20/using-opsworks-for-app-deployment.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2015/08/20/using-opsworks-for-app-deployment.html</guid>
+        
+        <category>opsworks</category>
+        
+        <category>aws</category>
+        
+        <category>devops</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Hadoop data import/export with Sqoop</title>
+        <description>&lt;p&gt;Apache Sqoop is an open source tool that allows to extract data from a structured data store into Hadoop for further processing. In addition to writing the contents of the database table to HDFS, Sqoop also provides you with a generated Java source file (widgets.java) written to the current local directory. Sqoop is a client command and there is no daemon process for it. It depends on HDFS and YARN and database drivers to which it connects.&lt;/p&gt;
+
+&lt;h3 id=&quot;output-formats&quot;&gt;Output Formats&lt;/h3&gt;
+&lt;p&gt;By default, Sqoop will generate csv  files for the imported data. It can also write the data as SequenceFiles, Avro datafiles or Parquet files. These binary formats allow data to be compressed while retaining MapReduce’s ability to process different sections of the same file in parallel.&lt;/p&gt;
+
+&lt;h3 id=&quot;splitting-columns&quot;&gt;Splitting columns&lt;/h3&gt;
+&lt;p&gt;Using metadata about the table, Sqoop will guess a good column to use for splitting the table (typically the primary key for the table, if one exists). The minimum and maximum values for the primary key column are retrieved, and then these are used in conjunction with a target number of tasks to determine the queries that each map task should issue&lt;/p&gt;
+
+&lt;p&gt;Eg if table is 100,000 rows and with -m 5, then there would be 5 map-reduce task and each map-reduce task will run a part of query in range : say 10K to 20K etc&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# check if you can connect to mysql with sqoop (using the provided jdbc driver)&lt;/span&gt;
+sqoop list-databases &lt;span class=&quot;nt&quot;&gt;--connect&lt;/span&gt; “jdbc://quickstart.cloudera:3306” &lt;span class=&quot;nt&quot;&gt;--username&lt;/span&gt; retail_dba &lt;span class=&quot;nt&quot;&gt;--password&lt;/span&gt; cloudera
+
+&lt;span class=&quot;c&quot;&gt;# list the tables in database&lt;/span&gt;
+sqoop list-tables &lt;span class=&quot;nt&quot;&gt;--connect&lt;/span&gt; “jdbc://quickstart.cloudera:3306/retail_db” &lt;span class=&quot;nt&quot;&gt;--username&lt;/span&gt; retail_dba &lt;span class=&quot;nt&quot;&gt;--password&lt;/span&gt; cloudera
+
+
+&lt;span class=&quot;c&quot;&gt;# import all tables&lt;/span&gt;
+Sqoop import-all-tables &lt;span class=&quot;nt&quot;&gt;-m&lt;/span&gt; 12  &lt;span class=&quot;nt&quot;&gt;--connect&lt;/span&gt; “jdbc://quickstart.cloudera:3306/retail_db” &lt;span class=&quot;nt&quot;&gt;--username&lt;/span&gt; retail_dba &lt;span class=&quot;nt&quot;&gt;--password&lt;/span&gt; cloudera  &lt;span class=&quot;nt&quot;&gt;--warehouse-dir&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/user/cloudera/imported_data&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;-m means 12 mappers. This means that there are 12 threads active on a single table. All the tables are imported in sequential manner one after the other. It is just a suggestion to hadoop and while during operation hadoop will decide the number of threads to use based on the size of the data, block size etc. If in the output you see files like part-001 to part–006 it means that it has used only 6 threads. By default the number of mappers is 4
+If the database there is primary index with min value of 1 and max value of 12, then since there are 12 mappers, sqoop will break the data in 12 parts and issues 12 different queries . One in each thread. Eg: min 1, max 2 , min 2 and max 3 etc. Each of these will be given to each of the mappers to process.&lt;/p&gt;
+
+&lt;p&gt;The mappers count is decided based on the volume of the data and nodes available.
+References:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://wiki.apache.org/hadoop/HowManyMapsAndReduces&quot;&gt;How many maps and reduces&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://stackoverflow.com/questions/20307404/hadoop-number-of-mappers-and-reducers&quot;&gt;Hadoop number of mappers and reducers&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.quora.com/What-are-good-ways-to-decide-number-of-reducers&quot;&gt;Good way to decide number of mappers and reducers&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# use the eval command to run the select, insert etc&lt;/span&gt;
+sqoop  &lt;span class=&quot;nb&quot;&gt;eval&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--connect&lt;/span&gt; “jdbc://quickstart.cloudera:3306/retail_db” &lt;span class=&quot;nt&quot;&gt;--username&lt;/span&gt; retail_dba &lt;span class=&quot;nt&quot;&gt;--password&lt;/span&gt; cloudera 
+&lt;span class=&quot;nt&quot;&gt;--query&lt;/span&gt; “select &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; from departments”&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;importing-data-to-hive&quot;&gt;Importing data to hive&lt;/h3&gt;
+&lt;p&gt;Using scoop we can import data to Hive so that we can run SQL queries with a bigger dataset over a cluster.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;# start the hive shell&lt;/span&gt;
+create database sqoop_import
+dfs &lt;span class=&quot;nt&quot;&gt;-ls&lt;/span&gt; /user/hive/warehouse
+show databases
+
+&lt;span class=&quot;c&quot;&gt;# create the hive table &lt;/span&gt;
+sqoop import-all-tables &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--num-mappers&lt;/span&gt; 1 &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--connect&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;jdbc:mysql://quickstart.cloudera:3306/retail_db&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--username&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;retail_dba &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--password&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;cloudera &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--hive-import&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--hive-overwrite&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--create-hive-table&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--compress&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--compression-codec&lt;/span&gt; org.apache.hadoop.io.compress.SnappyCodec &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--outdir&lt;/span&gt; java_files
+
+&lt;span class=&quot;c&quot;&gt;# check out the new folders created&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; show tables
+
+&lt;span class=&quot;c&quot;&gt;# validate the count of rows imported&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;select &lt;/span&gt;count&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; from order_items&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+sqoop &lt;span class=&quot;nb&quot;&gt;eval&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--connect&lt;/span&gt; “jdbc:mysql://quickstart.cloudera:3306/retail_db” &lt;span class=&quot;nt&quot;&gt;--username&lt;/span&gt; cloudera &lt;span class=&quot;nt&quot;&gt;--password&lt;/span&gt; cloudera &lt;span class=&quot;nt&quot;&gt;--query&lt;/span&gt; “select count&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; from order_items”
+
+
+&lt;span class=&quot;c&quot;&gt;# run queries&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;select&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; from departments&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;using-boundary-query-and-columns&quot;&gt;Using Boundary Query and columns&lt;/h3&gt;
+&lt;p&gt;The –boundary-query allow you more control while importing data in parallel. Boundary Query lets you specify an optimized query to get the max, min  else it will try to find the min and max on the query statement and when there are millions of rows this may take a while and slow it down.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;sqoop import &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--connect&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;jdbc:mysql://quickstart.cloudera:3306/retail_db&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--username&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;retail_dba &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--password&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;cloudera &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--table&lt;/span&gt; departments &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--target-dir&lt;/span&gt; /user/cloudera/departments &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;-m&lt;/span&gt; 2 &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--boundary-query&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;select 2, 8 from departments limit 1&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--columns&lt;/span&gt; department_id,department_name&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;using--split-by&quot;&gt;Using -split-by&lt;/h3&gt;
+
+&lt;p&gt;By default during table import the primary key column is used to split and distribute the values from table across the mappers uniformly. However in case of doing a more advanced query, you’ll need to specify the column to do the parallel split.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;sqoop import &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--connect&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;jdbc:mysql://quickstart.cloudera:3306/retail_db&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--username&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;retail_dba &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--password&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;cloudera &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--query&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;select * from orders join order_items on orders.order_id = order_items.order_item_order_id where &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\$&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;CONDITIONS&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--target-dir&lt;/span&gt; /user/cloudera/order_join &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--split-by&lt;/span&gt; order_id &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--num-mappers&lt;/span&gt; 4&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;export&quot;&gt;Export&lt;/h3&gt;
+&lt;p&gt;While calculating number of mappers for scoop exports, the number of blocks in which files is divided is used as the criteria. There is no difference in importing from hdfs and hive directories. Same commands are use.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;sqoop &lt;span class=&quot;nb&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--connect&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;jdbc:mysql://quickstart.cloudera:3306/retail_db&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--username&lt;/span&gt; retail_dba &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--password&lt;/span&gt; cloudera &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--table&lt;/span&gt; departments_test &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--export-dir&lt;/span&gt; /user/hive/warehouse/departments_test &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--input-fields-terminated-by&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'\001'&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--input-lines-terminated-by&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'\n'&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--num-mappers&lt;/span&gt; 2 &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--batch&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--outdir&lt;/span&gt; java_files &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--input-null-string&lt;/span&gt; nvl &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;--input-null-non-string&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-1&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;input-null-non-string : specify what int value can be stored as null . In the query above its -1
+Input-null-string :  specify what value in file should be stored as null . In the query above its nvl&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 20 Aug 2015 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2015/08/20/hadoop-data-import-export-with-sqoop.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2015/08/20/hadoop-data-import-export-with-sqoop.html</guid>
+        
+        <category>hadoop</category>
+        
+        <category>bigdata</category>
+        
+        
+      </item>
+    
+  </channel>
+</rss>

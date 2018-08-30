@@ -21,3 +21,5 @@ markdown: kramdown
 #Exclude Tags , comma separated
 main_ignore_posts_with_tags: 'troubleshooting'
 tagline: 'BigData, Analytics and Cloud'
+
+theme: jekyll-theme-cayman

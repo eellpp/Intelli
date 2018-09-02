@@ -8,7 +8,7 @@ Building large cloud based systems requires good engineering. Especially if this
 
 ### The Data Architect
 
-<img src="{{ site.url }}/{{ base.url }}/assets/data_architect.jpg" alt="dataarchitect" style="width: 200px;"/>
+<img src="{{ site.url }}/{{ site.baseurl }}/assets/data_architect.jpg" alt="dataarchitect" style="width: 200px;"/>
 
 A Data Architect would be required to design products which requires careful integration of these skill sets.
 

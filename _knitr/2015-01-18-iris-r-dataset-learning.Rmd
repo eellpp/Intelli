@@ -1,0 +1,238 @@
+---
+title: "R Dataset Analysis : Iris Dataset"
+output: html_document
+layout: post
+date: 2015-01-12T00:00:00+08:00
+tags: R dataset 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Iris DataSet
+
+Iris DataSet
+The data set contains 3 classes of 50 instances each, where each class refers to a type of iris plant. One class is linearly separable from the other 2; the latter are NOT linearly separable from each other.
+
+Predicted attribute: class of iris plant.
+<http://archive.ics.uci.edu/ml/datasets/Iris>
+
+```{r }
+data(iris)
+head(iris)
+```
+
+```{r }
+summary(iris)
+str(iris)
+```
+
+## Including Plots
+
+### Scatter Plot
+```{r }
+plot(x=iris$Petal.Length, y=iris$Petal.Width, col=iris$Species)
+```
+
+ We could use the pch argument (plot character) for specify the marking of Species. 
+ pch=21 is for filled circles, pch=22 for filled squares, pch=23 for filled diamonds, pch=24 or pch=25 for up/down triangles.
+ 
+```{r }
+plot(iris$Petal.Length, iris$Petal.Width, pch=c(23,24,25)[unclass(iris$Species)], main="Iris Data")
+```
+
+or we can add color to them
+```{r }
+plot(iris$Petal.Length, iris$Petal.Width,pch=21, bg=c("red","green3","blue")[unclass(iris$Species)], main="Iris Data")
+```
+
+#### Scatter Plot Matrix
+This shows the possible two-dimensional projections of multidimensional data 
+```{r  }
+pairs(iris[1:4], col=iris$Species, pch = 21, bg = c("red", "green3", "blue")[unclass(iris$Species)])
+```
+
+From the plot the Petal.Length and Petal.Width can be best used for classifying the Species. 
+
+This shows the possible two-dimensional projections of multidimensional data. 
+We can print the correlation coeff and p value in the top panel.
+
+```{r  }
+panel.cor <- function(x, y, digits = 2, cex.cor, ...)
+{
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  # correlation coefficient
+  r <- cor(x, y)
+  txt <- format(c(r, 0.123456789), digits = digits)[1]
+  txt <- paste("r= ", txt, sep = "")
+  text(0.5, 0.6, txt)
+
+  # p-value calculation
+  p <- cor.test(x, y)$p.value
+  txt2 <- format(c(p, 0.123456789), digits = digits)[1]
+  txt2 <- paste("p= ", txt2, sep = "")
+  if(p<0.01) txt2 <- paste("p= ", "<0.01", sep = "")
+  text(0.5, 0.4, txt2)
+}
+
+pairs(iris[1:4], col=iris$Species, pch = 21, bg = c("red", "green3", "blue")[unclass(iris$Species)],
+      upper.panel=panel.cor)
+```
+
+## Using SVM for Classifying the Species
+```{r  }
+library("e1071")
+
+index <- 1:nrow(iris)
+testindex <- sample(index, trunc(length(index)/4))
+testset <- iris[testindex,]
+trainset <- iris[-testindex,]
+
+svm_model <- svm(Species ~ ., data=trainset)
+summary(svm_model)
+```
+
+
+Predict the testdata with model
+
+```{r  }
+prediction <- predict(svm_model,testset[,-5])
+tab <- table(pred = prediction, true = testset[,5])
+tab
+```
+
+Tuning SVM for best cost and gamma 
+```{r  }
+svm_tune <- tune.svm(Species ~ ., data=trainset, 
+              kernel="radial", cost=10^(-1:2), gamma=c(.5,1,2))
+
+print(svm_tune)
+```
+
+Run SVM after tuning
+```{r  }
+svm_model_after_tune <- svm(Species ~ ., data=iris, kernel="radial", cost=1, gamma=0.5)
+summary(svm_model_after_tune)
+```
+
+Predict the testdata with model
+
+```{r  }
+prediction <- predict(svm_model_after_tune,testset[,-5])
+tab <- table(pred = prediction, true = testset[,5])
+tab
+```
+
+## K Means clustering
+
+```{r  }
+set.seed(20)
+irisCluster <- kmeans(iris[, 3:4], 3, nstart = 20)
+irisCluster
+```
+
+Tabulate the clusters by species
+```{r  }
+table(irisCluster$cluster, iris$Species)
+```
+From the table we can detect the mis-classification
+
+Plot the clusters
+```{r  }
+cluster <- as.factor(irisCluster$cluster)
+plot(iris$Petal.Length, iris$Petal.Width,pch=21, bg=c("red","green3","blue")[unclass(cluster)], main="Iris Data")
+```
+You can compare it with the plot of the original data.
+
+## Using RandomForest for classification
+
+```{r  }
+library(randomForest)
+model.rf <- randomForest(Species ~ . , data=trainset)
+model.rf
+```
+
+```{r  }
+pred.rf <- predict(model.rf,testset[,-5])
+tab <- table(pred = pred.rf, true = testset[,5])
+tab
+```
+
+tuning Random Forest
+
+```{r  }
+tuneRF(trainset[,-5],trainset[,5],ntreeTry=100, 
+     stepFactor=1.5,improve=0.01, trace=TRUE, plot=TRUE, dobest=FALSE)
+```
+
+
+```{r  }
+model.rf.tune <-randomForest(Species ~.,data=trainset, mtry=2, ntree=1000, 
+     keep.forest=TRUE, importance=TRUE,test=testset)
+model.rf.tune
+```
+
+
+```{r  }
+pred.rf.tune <- predict(model.rf.tune,testset[,-5])
+tab <- table(pred = pred.rf.tune, true = testset[,5])
+tab
+```
+
+## Neural Network
+
+```{r}
+library(caret)
+library(nnet)
+model <- train(Species ~ ., trainset, method='nnet', trace = FALSE) # train
+# we also add parameter 'preProc = c("center", "scale"))' at train() for centering and scaling the data
+model
+```
+
+
+```{r}
+prediction <- predict(model, testset[-5])                           # predict
+tab <- table(prediction, testset[,5])                                  # compare
+tab
+```
+
+Tuning the nnet for parameter size. Train function from caret package is a good starting point for this
+```{r}
+my.grid <- expand.grid(.decay = c(0.5, 0.1), .size = c(2,3,4,5))
+model.nnet.tune <- train(Species ~ ., trainset, method='nnet',maxit = 1000, tuneGrid = my.grid, trace = F) 
+model.nnet.tune
+```
+
+```{r}
+prediction <- predict(model.nnet.tune, testset[-5])                    # predict
+tab <- table(prediction, testset[,5])                                  # compare
+tab
+```
+
+## Generalised Boosted Models 
+This is available as the method gbm in caret package
+
+```{r}
+fitControl <- trainControl(method="repeatedcv",
+                           number=5,
+                           repeats=1,
+                           verboseIter=TRUE)
+set.seed(25)
+model.gbm <- train(Species ~ ., data=iris,
+                method="gbm",
+                trControl=fitControl,
+                verbose=FALSE)
+
+model.gbm
+```
+
+
+```{r}
+prediction <- predict(model.gbm, testset[-5]) 
+tab <- table(prediction, testset[,5])
+tab
+```
+
+

@@ -10,8 +10,7 @@ title: IntelliSignals
 email: contact@intellisignals.com
 description: > # this means to ignore newlines until "baseurl:"
         Intelligent systems over Cloud
-baseurl: "/intelli" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site
+url: "https://eellpp.github.io/intelli/" # the base hostname & protocol for your site
 twitter_username: 
 github_username: 
 

@@ -4,10 +4,10 @@
     <title>IntelliSignals</title>
     <description>Intelligent systems over Cloud
 </description>
-    <link>http://localhost:4000/</link>
-    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 31 Aug 2018 06:34:11 +0800</pubDate>
-    <lastBuildDate>Fri, 31 Aug 2018 06:34:11 +0800</lastBuildDate>
+    <link>http://localhost:4000/intelli/</link>
+    <atom:link href="http://localhost:4000/intelli/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Sun, 02 Sep 2018 08:12:55 +0800</pubDate>
+    <lastBuildDate>Sun, 02 Sep 2018 08:12:55 +0800</lastBuildDate>
     <generator>Jekyll v3.7.3</generator>
     
       <item>
@@ -116,8 +116,8 @@ startup&lt;/p&gt;
 
 </description>
         <pubDate>Sat, 12 Mar 2016 00:00:00 +0800</pubDate>
-        <link>http://localhost:4000/2016/03/12/akka-cluster-with-router-pools.html</link>
-        <guid isPermaLink="true">http://localhost:4000/2016/03/12/akka-cluster-with-router-pools.html</guid>
+        <link>http://localhost:4000/intelli/2016/03/12/akka-cluster-with-router-pools.html</link>
+        <guid isPermaLink="true">http://localhost:4000/intelli/2016/03/12/akka-cluster-with-router-pools.html</guid>
         
         <category>akka</category>
         
@@ -460,8 +460,8 @@ items.groupByKey&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;.map&lt;span clas
 
 </description>
         <pubDate>Mon, 11 Jan 2016 00:00:00 +0800</pubDate>
-        <link>http://localhost:4000/2016/01/11/data-processing-with-apache-spark.html</link>
-        <guid isPermaLink="true">http://localhost:4000/2016/01/11/data-processing-with-apache-spark.html</guid>
+        <link>http://localhost:4000/intelli/2016/01/11/data-processing-with-apache-spark.html</link>
+        <guid isPermaLink="true">http://localhost:4000/intelli/2016/01/11/data-processing-with-apache-spark.html</guid>
         
         <category>bigdata</category>
         
@@ -587,8 +587,8 @@ start-dfs.sh&lt;/p&gt;
 &lt;p&gt;Reference: http://zhongyaonan.com/hadoop-tutorial/setting-up-hadoop-2-6-on-mac-osx-yosemite.html&lt;/p&gt;
 </description>
         <pubDate>Mon, 11 Jan 2016 00:00:00 +0800</pubDate>
-        <link>http://localhost:4000/2016/01/11/hadoop-ecosystem.html</link>
-        <guid isPermaLink="true">http://localhost:4000/2016/01/11/hadoop-ecosystem.html</guid>
+        <link>http://localhost:4000/intelli/2016/01/11/hadoop-ecosystem.html</link>
+        <guid isPermaLink="true">http://localhost:4000/intelli/2016/01/11/hadoop-ecosystem.html</guid>
         
         <category>hadoop</category>
         
@@ -652,8 +652,8 @@ We would also need to transform the data into proper units and scales so that th
 
 </description>
         <pubDate>Thu, 24 Dec 2015 00:00:00 +0800</pubDate>
-        <link>http://localhost:4000/2015/12/24/predictive-analytics-project-workflow.html</link>
-        <guid isPermaLink="true">http://localhost:4000/2015/12/24/predictive-analytics-project-workflow.html</guid>
+        <link>http://localhost:4000/intelli/2015/12/24/predictive-analytics-project-workflow.html</link>
+        <guid isPermaLink="true">http://localhost:4000/intelli/2015/12/24/predictive-analytics-project-workflow.html</guid>
         
         <category>analytics</category>
         
@@ -692,8 +692,8 @@ gammaDF &amp;lt;- as.data.frame&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;lda
 
 </description>
         <pubDate>Thu, 17 Dec 2015 00:00:00 +0800</pubDate>
-        <link>http://localhost:4000/2015/12/17/topic-model-with-r.html</link>
-        <guid isPermaLink="true">http://localhost:4000/2015/12/17/topic-model-with-r.html</guid>
+        <link>http://localhost:4000/intelli/2015/12/17/topic-model-with-r.html</link>
+        <guid isPermaLink="true">http://localhost:4000/intelli/2015/12/17/topic-model-with-r.html</guid>
         
         <category>R</category>
         
@@ -710,8 +710,8 @@ gammaDF &amp;lt;- as.data.frame&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;lda
 
 </description>
         <pubDate>Sun, 22 Nov 2015 00:00:00 +0800</pubDate>
-        <link>http://localhost:4000/2015/11/22/protocol-buffers-for-sending-data-between-services.html</link>
-        <guid isPermaLink="true">http://localhost:4000/2015/11/22/protocol-buffers-for-sending-data-between-services.html</guid>
+        <link>http://localhost:4000/intelli/2015/11/22/protocol-buffers-for-sending-data-between-services.html</link>
+        <guid isPermaLink="true">http://localhost:4000/intelli/2015/11/22/protocol-buffers-for-sending-data-between-services.html</guid>
         
         <category>tools</category>
         
@@ -786,8 +786,8 @@ auc&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 </description>
         <pubDate>Wed, 18 Nov 2015 00:00:00 +0800</pubDate>
-        <link>http://localhost:4000/2015/11/18/building-logistic-regression-models.html</link>
-        <guid isPermaLink="true">http://localhost:4000/2015/11/18/building-logistic-regression-models.html</guid>
+        <link>http://localhost:4000/intelli/2015/11/18/building-logistic-regression-models.html</link>
+        <guid isPermaLink="true">http://localhost:4000/intelli/2015/11/18/building-logistic-regression-models.html</guid>
         
         <category>R analytics</category>
         
@@ -912,8 +912,8 @@ With readNullable we get an Option[T] object which means that field itself is op
 
 </description>
         <pubDate>Sat, 22 Aug 2015 00:00:00 +0800</pubDate>
-        <link>http://localhost:4000/2015/08/22/scala-json-parsing-with-play-json.html</link>
-        <guid isPermaLink="true">http://localhost:4000/2015/08/22/scala-json-parsing-with-play-json.html</guid>
+        <link>http://localhost:4000/intelli/2015/08/22/scala-json-parsing-with-play-json.html</link>
+        <guid isPermaLink="true">http://localhost:4000/intelli/2015/08/22/scala-json-parsing-with-play-json.html</guid>
         
         <category>scala</category>
         
@@ -944,8 +944,8 @@ Once these necessary configurations are over, deploy the application.&lt;/p&gt;
 
 </description>
         <pubDate>Thu, 20 Aug 2015 00:00:00 +0800</pubDate>
-        <link>http://localhost:4000/2015/08/20/using-opsworks-for-app-deployment.html</link>
-        <guid isPermaLink="true">http://localhost:4000/2015/08/20/using-opsworks-for-app-deployment.html</guid>
+        <link>http://localhost:4000/intelli/2015/08/20/using-opsworks-for-app-deployment.html</link>
+        <guid isPermaLink="true">http://localhost:4000/intelli/2015/08/20/using-opsworks-for-app-deployment.html</guid>
         
         <category>opsworks</category>
         
@@ -1073,8 +1073,8 @@ Input-null-string :  specify what value in file should be stored as null . In th
 
 </description>
         <pubDate>Thu, 20 Aug 2015 00:00:00 +0800</pubDate>
-        <link>http://localhost:4000/2015/08/20/hadoop-data-import-export-with-sqoop.html</link>
-        <guid isPermaLink="true">http://localhost:4000/2015/08/20/hadoop-data-import-export-with-sqoop.html</guid>
+        <link>http://localhost:4000/intelli/2015/08/20/hadoop-data-import-export-with-sqoop.html</link>
+        <guid isPermaLink="true">http://localhost:4000/intelli/2015/08/20/hadoop-data-import-export-with-sqoop.html</guid>
         
         <category>hadoop</category>
         

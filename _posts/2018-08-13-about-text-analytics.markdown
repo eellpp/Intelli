@@ -17,3 +17,10 @@ Given an unstructured textual data set, text analytics is a series of transforma
 - email content
 - financial reports
 - chat transcriptions
+- transactional data like invoices, claims
+
+#### How is it different from NLP
+
+Text analytics is a broader domain whereas NLP is focused on extracting information from text written in natural languages. Text analytics may be performed on datasets not composed in natural languages like financial reports, invoices, claims etc. 
+
+
